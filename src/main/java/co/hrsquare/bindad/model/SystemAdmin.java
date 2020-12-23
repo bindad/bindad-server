@@ -5,12 +5,10 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class Company {
+public class SystemAdmin implements ISystemUser {
 
-    //system id
+    //some system id
     private String id;
-
-    private String name;
-    private Address address;
+    private final Role role = Role.SysAdmin;
 
 }

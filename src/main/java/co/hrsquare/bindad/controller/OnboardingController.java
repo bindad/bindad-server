@@ -1,5 +1,6 @@
 package co.hrsquare.bindad.controller;
 
+import co.hrsquare.bindad.model.Company;
 import co.hrsquare.bindad.model.Employee;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -17,7 +18,12 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class OnboardingController {
 
-    @PostMapping("/new")
+    @PostMapping("/newCompany")
+    public String newCompany(Company company) {
+        return "SUCCESS";
+    }
+
+    @PostMapping("/newStaff")
     public String newEmployee(Employee employee) {
         return "SUCCESS";
     }

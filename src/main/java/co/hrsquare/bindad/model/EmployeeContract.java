@@ -16,5 +16,7 @@ public class EmployeeContract {
     private LocalDate probationEndDate;
     private NoticePeriod employerNoticePeriod;
     private NoticePeriod employeeNoticePeriod;
+    private boolean workPermitRequired;
+    private LocalDate workPermitExpiry;
 
 }

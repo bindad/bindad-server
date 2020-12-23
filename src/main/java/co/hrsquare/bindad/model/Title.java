@@ -1,6 +1,6 @@
 package co.hrsquare.bindad.model;
 
-public enum EmployeeTitle {
+public enum Title {
 
     Mr,
     Ms,

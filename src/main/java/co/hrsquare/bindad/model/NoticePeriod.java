@@ -8,6 +8,7 @@ import lombok.NoArgsConstructor;
 public class NoticePeriod {
 
     private boolean statutory;
+    private int periodInWeeks;
     private int periodInMonths;
 
 }

@@ -5,10 +5,11 @@ import lombok.NoArgsConstructor;
 
 @Data
 @NoArgsConstructor
-public class EmployeeContactDetails {
+public class EmergencyContact {
 
+    private String relationship;
     private FullNameDetails fullNameDetails;
-    private EmailTelephone workContact;
-    private EmailTelephone homeContact;
+    private EmailTelephone emailTelephone;
+    private Address address;
 
 }

@@ -3,7 +3,9 @@ package co.hrsquare.bindad.model;
 public enum ContractType {
 
     Standard,
-    PartTime,
+    ZeroHours,
+    Casual,
+    Contractor,
     Volunteer
 
 }
