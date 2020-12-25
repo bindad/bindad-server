@@ -12,7 +12,7 @@ public interface IUserMapper {
             "select #{username}, #{password}, #{authorities}, 0, #{updatedBy}, #{updatedTime}")
     void insert(User user);
 
-    @Select("select id, username, authorities from tbl_user " +
+    @Select("select id, username, password, authorities from tbl_user " +
             "where username=#{username} ")
     User findByUsername(String username);
 

@@ -4,7 +4,9 @@ import co.hrsquare.bindad.controller.input.UserAuthInput;
 import co.hrsquare.bindad.mapper.IUserMapper;
 import co.hrsquare.bindad.model.auth.User;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.context.annotation.Bean;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
@@ -13,12 +15,13 @@ import java.time.LocalDateTime;
 @Slf4j
 public class UserService {
 
-    private static final BCryptPasswordEncoder passwordEncoder = new BCryptPasswordEncoder();
-
     private final IUserMapper userMapper;
+    private final PasswordEncoder passwordEncoder;
 
-    public UserService(IUserMapper userMapper) {
+    public UserService(IUserMapper userMapper,
+                       PasswordEncoder passwordEncoder) {
         this.userMapper = userMapper;
+        this.passwordEncoder = passwordEncoder;
     }
 
     public boolean checkUsernameExists(String username) {
@@ -58,5 +61,9 @@ public class UserService {
         log.info("Successfully deleted user: {}", username);
 
         return "SUCCESS";
+    }
+
+    public User loadUserAuthDetails(String username) {
+        return userMapper.findByUsername(username);
     }
 }
