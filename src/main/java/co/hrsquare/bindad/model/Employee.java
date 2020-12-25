@@ -7,7 +7,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 public class Employee implements ISystemUser {
     //system id
-    private String id;
+    private long id;
 
     private EmployeeContactDetails contactDetails;
     private Company company;

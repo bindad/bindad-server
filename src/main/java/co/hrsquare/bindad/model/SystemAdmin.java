@@ -8,7 +8,7 @@ import lombok.NoArgsConstructor;
 public class SystemAdmin implements ISystemUser {
 
     //some system id
-    private String id;
+    private long id;
     private final Role role = Role.SysAdmin;
 
 }

@@ -12,13 +12,13 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.security.provisioning.InMemoryUserDetailsManager;
 
 import java.util.Collections;
-import java.util.Properties;
 
 @Configuration
 @EnableWebSecurity
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] PROTECTED_RESOURCES = new String[] {
             "/onboard/**",
+            "/auth/**",
             "/swagger-ui/**"
     };
 
@@ -40,7 +40,7 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
 
     @Bean
     @Override
-    public UserDetailsService userDetailsServiceBean() throws Exception {
+    public UserDetailsService userDetailsServiceBean() {
         InMemoryUserDetailsManager mgr = new InMemoryUserDetailsManager();
         BCryptPasswordEncoder encoder = new BCryptPasswordEncoder();
         mgr.createUser(new User("admin", encoder.encode("badmin"), Collections.emptyList()));

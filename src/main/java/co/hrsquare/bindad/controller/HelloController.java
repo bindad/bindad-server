@@ -18,6 +18,7 @@ public class HelloController {
     public String index() {
         TestModel testModel = testMapper.findById("1");
         return "Hello " + testModel.getName() + "!";
+
     }
 
 }
