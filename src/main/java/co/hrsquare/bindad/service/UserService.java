@@ -30,6 +30,8 @@ public class UserService {
         newUser.setUsername(input.getUsername());
         newUser.setPassword(passwordEncoder.encode(input.getPassword()));
         newUser.setAuthorities(toCsv(input.getAuthorities()));
+        newUser.setUpdatedBy(-1);
+        newUser.setUpdatedTime(LocalDateTime.now());
 
         userMapper.insert(newUser);
         log.info("Successfully created new user {}", newUser.getUsername());

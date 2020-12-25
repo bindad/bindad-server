@@ -35,7 +35,9 @@ public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
                 .and()
                 .headers().addHeaderWriter((req, res) -> res.addHeader("Cache-Control", "no-store"))
                 .and()
-                .headers().cacheControl().disable();
+                .headers().cacheControl().disable()
+                .and()
+                .csrf().disable();
     }
 
     @Bean
