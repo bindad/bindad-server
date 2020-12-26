@@ -50,6 +50,17 @@ public class UserService {
         return String.join(",", authorities);
     }
 
+    public String resetPassword(UserAuthInput input) {
+        if (!checkUsernameExists(input.getUsername())) {
+            log.warn("USer {} does not exist", input.getUsername());
+            return "ERROR";
+        }
+
+        userMapper.resetPassword(input.getUsername(), passwordEncoder.encode(input.getPassword()));
+
+        return "SUCCESS";
+    }
+
     public String removeUser(String username) {
         //check user exists
         if (!checkUsernameExists(username)){

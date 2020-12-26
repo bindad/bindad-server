@@ -17,6 +17,12 @@ public interface IUserMapper {
     User findByUsername(String username);
 
     @Update("update tbl_user " +
+            "set password=#{password} " +
+            "where username=#{username} " +
+            "and is_deleted = 0")
+    void resetPassword(String username, String password);
+
+    @Update("update tbl_user " +
             "set username = concat(username, '-DELETED'), is_deleted = 1, updated_by=#{updatedBy}, updated_time=#{updatedTime} " +
             "where username=#{username}")
     void markDeleted(String username, long updatedBy, LocalDateTime updatedTime);
