@@ -57,6 +57,23 @@ public class UserAuthController {
         return "SUCCESS";
     }
 
+    @PostMapping("/reset")
+    public String resetUser(UserAuthInput input) {
+        Objects.requireNonNull(input);
+        Objects.requireNonNull(input.getUsername());
+        Objects.requireNonNull(input.getPassword());
+
+        log.info("Handling resetUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
+        try {
+            userService.resetPassword(input);
+        } catch (Exception e) {
+            log.error("Error in resetUser", e);
+            return "ERROR";
+        }
+        log.info("Done resetUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
+        return "SUCCESS";
+    }
+
     @PostMapping("/removeUser")
     public String removeUser(String username) {
         Objects.requireNonNull(username);
