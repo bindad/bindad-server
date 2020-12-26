@@ -18,6 +18,26 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 @Slf4j
 public class OnboardingController {
 
+    @PostMapping("/newDemoClient")
+    public String newClientDemo() {
+        return "SUCCESS";
+    }
+
+    @PostMapping("/newLiveClient")
+    public String newLiveClient() {
+        return "SUCCESS";
+    }
+
+    @PostMapping("/upgradeClient")
+    public String upgradeClient() {
+        return "SUCCESS";
+    }
+
+    @PostMapping("/removeClient")
+    public String removeClient() {
+        return "SUCCESS";
+    }
+
     @PostMapping("/newCompany")
     public String newCompany(Organisation organisation) {
         return "SUCCESS";
