@@ -5,6 +5,9 @@ import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 
+/**
+ * Represents someone with access to the system. Can be a client or system admin.
+ */
 @Data
 @NoArgsConstructor
 public class User {

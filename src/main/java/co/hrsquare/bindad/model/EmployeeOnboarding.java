@@ -1,5 +1,6 @@
 package co.hrsquare.bindad.model;
 
+import co.hrsquare.bindad.model.employee.Employee;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
