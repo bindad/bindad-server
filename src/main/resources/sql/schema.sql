@@ -65,6 +65,7 @@ create table tbl_organisation (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(public_id),
+    unique(full_name),
     primary key (id)
 );
 
@@ -94,14 +95,14 @@ create table tbl_employee (
     first_name varchar(32) null,
     known_as varchar(32) null,
     middle_initial varchar(5) null,
-    last_name varchar(32) not null,
+    last_name varchar(32) null,
 
-    work_email varchar(255) not null,
+    work_email varchar(255) null,
     work_telephone varchar(32) null,
     work_telephone_ext varchar(32) null,
     work_mobile varchar(32) null,
 
-    home_email varchar(255) not null,
+    home_email varchar(255) null,
     home_telephone varchar(32) null,
     home_telephone_ext varchar(32) null,
     home_mobile varchar(32) null,
@@ -183,9 +184,9 @@ create table tbl_employee (
     emergency_contact_first_name varchar(32) null,
     emergency_contact_known_as varchar(32) null,
     emergency_contact_middle_initial varchar(5) null,
-    emergency_contact_last_name varchar(32) not null,
+    emergency_contact_last_name varchar(32) null,
 
-    emergency_contact_email varchar(255) not null,
+    emergency_contact_email varchar(255) null,
     emergency_contact_telephone varchar(32) null,
     emergency_contact_telephone_ext varchar(32) null,
     emergency_contact_mobile varchar(32) null,

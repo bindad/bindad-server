@@ -16,6 +16,10 @@ public interface IUserMapper {
             "where username=#{username} ")
     User findByUsername(String username);
 
+    @Select("select id from tbl_user " +
+            "where username=#{username} ")
+    Long findId(User user);
+
     @Update("update tbl_user " +
             "set password=#{password} " +
             "where username=#{username} " +

@@ -11,23 +11,20 @@ import java.time.LocalDateTime;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class NicTableLetter {
-/*
-    A_Standard,
-    B_MarriedWomenAndWidows,
-    C_EmployeesOverStatePensionAge,
-    J_EmployeesDeferNI,
-    H_Apprentice,
-    M_EmployeesUnder21,
-    Z_EmployeesUnder21DeferNI
-*/
+public class CircumstancesAtStart {
+    /*
+        A_EmployeeFirstJobSince6April,
+        B_EmployeeOnlyJobSince6April,
+        B_EmployeeHasAnotherJob
+     */
 
     private long id;
 
-    private String nicLetter;
-    private String nicLetterDescription;
+    private String circumstancesLetterCode;
+    private String circumstancesLetterDescription;
 
     private boolean deleted;
     private long updatedBy;
     private LocalDateTime updatedTime;
+
 }
