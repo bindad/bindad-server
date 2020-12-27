@@ -14,6 +14,7 @@ import java.time.LocalDate;
 public class ClientContract {
 
     private ClientContractType clientContractType;
+    private ContractStatus contractStatus;
     private byte[] clientContract;
     private LocalDate contractStartDate;
     private LocalDate contractEndDate;

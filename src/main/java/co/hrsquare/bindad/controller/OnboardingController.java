@@ -33,10 +33,10 @@ public class OnboardingController {
         log.info("Handling newClientDemo request for {}", input);
         validateInput(input);
 
-        clientOnboardingService.signUpForDemo(input);
+        String res = clientOnboardingService.signUpForDemo(input);
 
         log.info("DONE Handling newClientDemo request for {}", input);
-        return "SUCCESS";
+        return res;
     }
 
     private void validateInput(ClientDemoSignUpInput input) {

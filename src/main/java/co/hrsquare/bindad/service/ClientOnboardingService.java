@@ -1,6 +1,7 @@
 package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
+import co.hrsquare.bindad.exception.InvalidInputException;
 import co.hrsquare.bindad.mapper.*;
 import co.hrsquare.bindad.model.auth.User;
 import co.hrsquare.bindad.model.client.Client;
@@ -16,18 +17,31 @@ import java.util.Objects;
 @Component
 @Slf4j
 public class ClientOnboardingService {
+    private static final String SUCCESS = "SUCCESS";
+
     private final UserService userService;
     private final DataStore dataStore;
+    private final IOrganisationMapper organisationMapper;
 
 
     public ClientOnboardingService(final UserService userService,
-                                   final DataStore dataStore) {
+                                   final DataStore dataStore,
+                                   final IOrganisationMapper organisationMapper) {
         this.userService = Objects.requireNonNull(userService);
         this.dataStore = Objects.requireNonNull(dataStore);
+        this.organisationMapper = Objects.requireNonNull(organisationMapper);
     }
 
     @Transactional
     public String signUpForDemo(ClientDemoSignUpInput input) {
+        //0. validate
+        try {
+            validateSignUpInput(input);
+        } catch (InvalidInputException e) {
+            log.error("signUpForDemo: invalid input", e);
+            return e.getMessage();
+        }
+
         //1. Create Client
         Client client = Client.createForDemo(
                 input.getTitle(),
@@ -62,6 +76,18 @@ public class ClientOnboardingService {
                 user);
         dataStore.save(IEmployeeMapper.class, employee);
 
-        return "SUCCESS";
+        return SUCCESS;
+    }
+
+    private void validateSignUpInput(ClientDemoSignUpInput input) throws InvalidInputException {
+        //check email not used
+        if (userService.checkUsernameExists(input.getEmailAddress())) {
+            throw new InvalidInputException("Email already in-use.");
+        }
+
+        //organisation not already present
+        if (organisationMapper.findByFullName(input.getCompanyName()) != null) {
+            throw new InvalidInputException("Company already in-use.");
+        }
     }
 }

@@ -43,6 +43,7 @@ public class Client {
 
         ClientContract clientContract = ClientContract.builder()
                 .clientContractType(ClientContractType.Demo)
+                .contractStatus(ContractStatus.ACTIVE)
                 .contractStartDate(LocalDate.now())
                 .contractEndDate(LocalDate.now().plus(14, ChronoUnit.DAYS))
                 .build();

@@ -22,6 +22,7 @@ public interface IClientMapper {
             "telephone_ext, " +
             "mobile, " +
             "contract_type, " +
+            "contract_status, " +
             "contract_start_date, " +
             "contract_end_date, " +
             "is_deleted, " +
@@ -38,6 +39,7 @@ public interface IClientMapper {
             "#{clientContactDetails.telephoneExt}, " +
             "#{clientContactDetails.mobile}, " +
             "#{clientContract.clientContractType.name}, " +
+            "#{clientContract.contractStatus.name}, " +
             "#{clientContract.contractStartDate}, " +
             "#{clientContract.contractEndDate}, " +
             "#{deleted}, " +

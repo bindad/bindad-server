@@ -1,3 +1,5 @@
+drop table tbl_user;
+
 create table tbl_user (
 	id bigint not null auto_increment,
     username varchar(255) not null,
@@ -9,6 +11,8 @@ create table tbl_user (
     unique(username),
     primary key (id)
 );
+
+drop table tbl_client;
 
 create table tbl_client (
 	id bigint not null auto_increment,
@@ -24,7 +28,8 @@ create table tbl_client (
     telephone_ext varchar(32) null,
     mobile varchar(32) null,
 
-    contract_type varchar(32) not null,
+    contract_type varchar(32) null,
+    contract_status varchar(64) null,
     contract_start_date date not null,
     contract_end_date date null,
 
@@ -34,6 +39,8 @@ create table tbl_client (
     unique(email),
     primary key (id)
 );
+
+drop table tbl_client_bill;
 
 create table tbl_client_bill (
 	id bigint not null auto_increment,
@@ -53,6 +60,8 @@ create table tbl_client_bill (
     primary key (id)
 );
 
+drop table tbl_organisation;
+
 create table tbl_organisation (
 	id bigint not null auto_increment,
     client_id bigint not null,
@@ -69,6 +78,8 @@ create table tbl_organisation (
     primary key (id)
 );
 
+drop table tbl_department;
+
 create table tbl_department (
 	id bigint not null auto_increment,
     organisation_id bigint not null,
@@ -84,6 +95,8 @@ create table tbl_department (
     unique(public_id),
     primary key (id)
 );
+
+drop table tbl_employee;
 
 create table tbl_employee (
 	id bigint not null auto_increment,
@@ -205,6 +218,8 @@ create table tbl_employee (
     primary key (id)
 );
 
+drop table tbl_address;
+
 create table tbl_address (
 	id bigint not null auto_increment,
     client_id bigint not null,
@@ -227,6 +242,8 @@ create table tbl_address (
     unique(client_id, organisation_id, employee_id),
     primary key (id)
 );
+
+drop table tbl_week_hours;
 
 create table tbl_week_hours (
 	id bigint not null auto_increment,
@@ -252,6 +269,8 @@ create table tbl_week_hours (
     primary key (id)
 );
 
+drop table tbl_nic_table_letter;
+
 create table tbl_nic_table_letter (
 	id bigint not null auto_increment,
 
@@ -265,16 +284,18 @@ create table tbl_nic_table_letter (
     primary key (id)
 );
 
+drop table tbl_p45_circumstances_at_start;
+
 create table tbl_p45_circumstances_at_start (
 	id bigint not null auto_increment,
 
     circumstances_letter_code char(1) null,
-    circumstances__description varchar(255) null,
+    circumstances_description varchar(255) null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(circumstances_letter_code, circumstances__description),
+    unique(circumstances_letter_code, circumstances_description),
     primary key (id)
 );
 
