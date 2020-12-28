@@ -1,9 +1,9 @@
 package co.hrsquare.bindad.mapper;
 
 import co.hrsquare.bindad.model.client.Client;
-import org.apache.ibatis.annotations.Insert;
-import org.apache.ibatis.annotations.Mapper;
-import org.apache.ibatis.annotations.Select;
+import org.apache.ibatis.annotations.*;
+
+import java.time.LocalDateTime;
 
 @Mapper
 public interface IClientMapper {
@@ -47,4 +47,14 @@ public interface IClientMapper {
             "#{updatedTime}")
     void insert(Client client);
 
+    @Update("update tbl_client " +
+            "set is_deleted=1, updated_by=#{updatedBy}, updated_time=#{updatedTime} " +
+            "where id=#{id}")
+    void markDeleted(Long id, Long updatedBy, LocalDateTime updatedTime);
+
+    @Delete("<script>" +
+                "delete from tbl_client " +
+                "where id = #{clientId}; " +
+            "</script>")
+    void deleteById(Long clientId);
 }

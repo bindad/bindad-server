@@ -40,42 +40,44 @@ public class UserAuthController {
         }
     }
 
-    @PostMapping("/newUser")
-    public String createUser(UserAuthInput input) {
+    @PostMapping("/newSuperUser")
+    public String createSuperUser(UserAuthInput input) {
         Objects.requireNonNull(input);
         Objects.requireNonNull(input.getUsername());
         Objects.requireNonNull(input.getPassword());
 
-        log.info("Handling createUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
+        log.info("Handling createSuperUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
         try {
-            userService.createNewUser(input);
+            userService.createNewSuperUser(input);
         } catch (Exception e) {
-            log.error("Error in createUser", e);
+            log.error("Error in createSuperUser", e);
             return "ERROR";
         }
-        log.info("Done createUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
+        log.info("Done createSuperUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
         return "SUCCESS";
     }
 
-    @PostMapping("/reset")
-    public String resetUser(UserAuthInput input) {
+    @PostMapping("/resetPassword")
+    public String resetUserPassword(UserAuthInput input) {
         Objects.requireNonNull(input);
         Objects.requireNonNull(input.getUsername());
         Objects.requireNonNull(input.getPassword());
 
-        log.info("Handling resetUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
+        log.info("Handling resetUserPassword for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
         try {
             userService.resetPassword(input);
         } catch (Exception e) {
-            log.error("Error in resetUser", e);
+            log.error("Error in resetUserPassword", e);
             return "ERROR";
         }
-        log.info("Done resetUser for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
+        log.info("Done resetUserPassword for {}/{}/{}", input.getUsername(), "*****", input.getAuthorities());
         return "SUCCESS";
     }
 
     @PostMapping("/removeUser")
     public String removeUser(String username) {
+        //for operational support only!
+
         Objects.requireNonNull(username);
 
         log.info("Handling removeUser for {}", username);

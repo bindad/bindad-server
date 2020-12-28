@@ -1,5 +1,8 @@
 package co.hrsquare.bindad.model.auth;
 
+import co.hrsquare.bindad.model.client.Client;
+import co.hrsquare.bindad.model.employee.Employee;
+import co.hrsquare.bindad.model.organisation.Organisation;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -23,6 +26,10 @@ public class User {
     private boolean deleted;
     private long updatedBy;
     private LocalDateTime updatedTime;
+
+    private Client client;
+    private Organisation organisation;
+    private Employee employee;
 
     @Override
     public String toString() {

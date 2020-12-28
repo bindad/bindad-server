@@ -15,6 +15,8 @@ class ClientOnboardingServiceITest {
 
     @Test
     public void testSignUpForDemo() {
+        clientOnboardingService.removeAllClientData("aseem.ruhela@myemail.com");
+
         ClientDemoSignUpInput input = new ClientDemoSignUpInput();
         input.setTitle("Mr");
         input.setFirstName("Aseem");
@@ -26,7 +28,8 @@ class ClientOnboardingServiceITest {
 
         String res = clientOnboardingService.signUpForDemo(input);
         Assertions.assertEquals("SUCCESS", res);
-    }
 
+        clientOnboardingService.removeAllClientData("aseem.ruhela@myemail.com");
+    }
 
 }

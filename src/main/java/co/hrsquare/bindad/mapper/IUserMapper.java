@@ -8,12 +8,32 @@ import java.time.LocalDateTime;
 @Mapper
 public interface IUserMapper {
 
-    @Insert("insert into tbl_user (username, password, authorities, is_deleted, updated_by, updated_time) " +
-            "select #{username}, #{password}, #{authorities}, 0, #{updatedBy}, #{updatedTime}")
+    @Insert("<script>" +
+                "insert into tbl_user (client_id, organisation_id, employee_id, username, password, authorities, is_deleted, updated_by, updated_time) " +
+                "select " +
+                        "<choose> " +
+                            "<when test=\"client != null\"> #{client.id}, </when>" +
+                            "<otherwise>null, </otherwise>" +
+                        "</choose>" +
+                        "<choose> " +
+                            "<when test=\"organisation != null\"> #{organisation.id}, </when>" +
+                            "<otherwise>null, </otherwise>" +
+                        "</choose>" +
+                        "<choose> " +
+                            "<when test=\"employee != null\"> #{employee.id}, </when>" +
+                            "<otherwise>null, </otherwise>" +
+                        "</choose>" +
+                        "#{username}, #{password}, #{authorities}, 0, #{updatedBy}, #{updatedTime}" +
+            "</script>")
     void insert(User user);
 
-    @Select("select id, username, password, authorities from tbl_user " +
+    @Select("select id, client_id, organisation_id, employee_id, username, password, authorities from tbl_user " +
             "where username=#{username} ")
+    @Results({
+            @Result(property = "client_id", column = "client.id"),
+            @Result(property = "organisation_id", column = "organisation.id"),
+            @Result(property = "employee_id", column = "employee.id")
+    })
     User findByUsername(String username);
 
     @Select("select id from tbl_user " +
@@ -33,4 +53,11 @@ public interface IUserMapper {
 
     @Delete("delete from tbl_user where username=#{username}")
     void deleteByUsername(String username);
+
+    @Delete("<script>" +
+                "delete from tbl_user " +
+                "where client_id = #{clientId};" +
+            "</script>")
+    void deleteByClientId(Long clientId);
+
 }

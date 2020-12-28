@@ -14,6 +14,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 public class WebSecurityConfig extends WebSecurityConfigurerAdapter {
     private static final String[] PROTECTED_RESOURCES = new String[] {
             "/onboard/**",
+            "/client/**",
             "/auth/**",
             "/swagger-ui/**"
     };

@@ -1,6 +1,7 @@
 package co.hrsquare.bindad.mapper;
 
 import co.hrsquare.bindad.model.employee.Employee;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -12,7 +13,6 @@ public interface IEmployeeMapper {
             "insert into tbl_employee (" +
             "client_id, " +
             "organisation_id, " +
-            "user_id, " +
             "title, " +
             "first_name, " +
             "known_as, " +
@@ -107,7 +107,6 @@ public interface IEmployeeMapper {
             "select " +
             "#{client.id}, " +
             "#{organisation.id}, " +
-            "#{user.id}, " +
             "#{contactDetails.fullNameDetails.title.name}, " +
             "#{contactDetails.fullNameDetails.firstName}, " +
             "#{contactDetails.fullNameDetails.knownAs}, " +
@@ -213,5 +212,11 @@ public interface IEmployeeMapper {
 
     @Select("select id from tbl_employee where work_email=#{contactDetails.workContact.email}")
     Long findId(Employee employee);
+
+    @Delete("<script>" +
+                "delete from tbl_employee " +
+                "where client_id = #{clientId};" +
+            "</script>")
+    void deleteByClientId(Long clientId);
 
 }

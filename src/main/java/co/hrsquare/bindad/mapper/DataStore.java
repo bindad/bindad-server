@@ -6,6 +6,7 @@ import org.springframework.context.ApplicationContext;
 import org.springframework.context.ApplicationContextAware;
 import org.springframework.stereotype.Component;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
 
@@ -41,6 +42,21 @@ public class DataStore implements ApplicationContextAware {
             log.error("Error saving {}", t, e);
             throw new RuntimeException(e);
         }
+    }
+
+    public <M> void hardDeleteBy(Class<M> mapperClass, String deleteByMethodName, Long id) {
+        try {
+            Method deleteByMethod = Arrays.stream(mapperClass.getDeclaredMethods())
+                    .filter(m -> m.getName().equals(deleteByMethodName))
+                    .findFirst().orElseThrow(RuntimeException::new);
+
+            M mapperBean = context.getBean(mapperClass);
+            deleteByMethod.invoke(mapperBean, id);
+        } catch (Exception e) {
+            log.error("Error on hard delete: {}", mapperClass, e);
+            throw new RuntimeException(e);
+        }
+
     }
 
     @Override

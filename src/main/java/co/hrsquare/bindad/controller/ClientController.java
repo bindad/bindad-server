@@ -15,16 +15,16 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(
-        value = "/onboard",
+        value = "/client",
         headers = {"Accept=application/json"},
         produces = {APPLICATION_JSON_VALUE}
 )
 @Slf4j
-public class OnboardingController {
+public class ClientController {
 
     private final ClientOnboardingService clientOnboardingService;
 
-    public OnboardingController(ClientOnboardingService clientOnboardingService) {
+    public ClientController(ClientOnboardingService clientOnboardingService) {
         this.clientOnboardingService = clientOnboardingService;
     }
 
@@ -59,20 +59,15 @@ public class OnboardingController {
         return "SUCCESS";
     }
 
-    @PostMapping("/removeClient")
-    public String removeClient() {
-        return "SUCCESS";
-    }
+    @PostMapping("/removeAllClientData")
+    public String removeAllClientData(String clientEmail) {
+        log.info("Handling removeAllClientData request for {}", clientEmail);
+        Objects.requireNonNull(clientEmail);
 
-    @PostMapping("/newCompany")
-    public String newCompany(Organisation organisation) {
-        return "SUCCESS";
-    }
+        String res = clientOnboardingService.removeAllClientData(clientEmail);
 
-    @PostMapping("/newStaff")
-    public String newEmployee(Employee employee) {
-        return "SUCCESS";
+        log.info("DONE Handling removeAllClientData request for {}", clientEmail);
+        return res;
     }
-
 
 }

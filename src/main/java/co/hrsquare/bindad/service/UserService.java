@@ -4,6 +4,9 @@ import co.hrsquare.bindad.controller.input.UserAuthInput;
 import co.hrsquare.bindad.mapper.DataStore;
 import co.hrsquare.bindad.mapper.IUserMapper;
 import co.hrsquare.bindad.model.auth.User;
+import co.hrsquare.bindad.model.client.Client;
+import co.hrsquare.bindad.model.employee.Employee;
+import co.hrsquare.bindad.model.organisation.Organisation;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -31,7 +34,8 @@ public class UserService {
         return userMapper.findByUsername(username) != null;
     }
 
-    public long createNewUser(UserAuthInput input) {
+    public long createNewSuperUser(UserAuthInput input) {
+        //this wont be attached to a client
         User newUser = new User();
         newUser.setUsername(input.getUsername());
         newUser.setPassword(passwordEncoder.encode(input.getPassword()));
@@ -81,16 +85,19 @@ public class UserService {
         return userMapper.findByUsername(username);
     }
 
-    public User save(String username, String rawPassword, String authorities) {
+    public User createNewClientUser(String username, String rawPassword, String authorities,
+                                    Client client, Organisation organisation, Employee employee) {
         User user = User.builder()
                 .username(username)
                 .password(passwordEncoder.encode(rawPassword))
                 .authorities(authorities)
+                .client(client)
+                .organisation(organisation)
+                .employee(employee)
+                .deleted(false)
+                .updatedBy(-1)
+                .updatedTime(LocalDateTime.now())
                 .build();
-
-        user.setDeleted(false);
-        user.setUpdatedBy(-1);
-        user.setUpdatedTime(LocalDateTime.now());
 
         dataStore.save(IUserMapper.class, user);
         return user;

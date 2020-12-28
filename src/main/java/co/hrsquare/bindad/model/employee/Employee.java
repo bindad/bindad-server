@@ -34,16 +34,15 @@ public class Employee implements ISystemUser {
 
     private SystemSettings systemSettings;
 
-    private User user;
-    private Organisation organisation;
     private Client client;
+    private Organisation organisation;
 
     private boolean deleted;
     private long updatedBy;
     private LocalDateTime updatedTime;
 
     public static Employee createOwner(String title, String firstName, String lastName, String emailAddress,
-                                       String telephone, Client client, Organisation org, User user) {
+                                       String telephone, Client client, Organisation org) {
 
         FullNameDetails fullNameDetails = FullNameDetails.builder()
                 .title(Title.valueOf(title))
@@ -62,7 +61,6 @@ public class Employee implements ISystemUser {
         employee.setContactDetails(contactDetails);
         employee.setClient(client);
         employee.setOrganisation(org);
-        employee.setUser(user);
 
         employee.setDeleted(false);
         employee.setUpdatedBy(-1);

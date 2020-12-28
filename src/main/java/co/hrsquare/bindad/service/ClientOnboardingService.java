@@ -5,6 +5,7 @@ import co.hrsquare.bindad.exception.InvalidInputException;
 import co.hrsquare.bindad.mapper.*;
 import co.hrsquare.bindad.model.auth.User;
 import co.hrsquare.bindad.model.client.Client;
+import co.hrsquare.bindad.model.employee.EmailTelephone;
 import co.hrsquare.bindad.model.employee.Employee;
 import co.hrsquare.bindad.model.organisation.Organisation;
 import lombok.extern.slf4j.Slf4j;
@@ -22,14 +23,19 @@ public class ClientOnboardingService {
     private final UserService userService;
     private final DataStore dataStore;
     private final IOrganisationMapper organisationMapper;
-
+    private final IClientMapper clientMapper;
+    private final IEmployeeMapper employeeMapper;
 
     public ClientOnboardingService(final UserService userService,
                                    final DataStore dataStore,
-                                   final IOrganisationMapper organisationMapper) {
+                                   final IOrganisationMapper organisationMapper,
+                                   final IClientMapper clientMapper,
+                                   final IEmployeeMapper employeeMapper) {
         this.userService = Objects.requireNonNull(userService);
         this.dataStore = Objects.requireNonNull(dataStore);
         this.organisationMapper = Objects.requireNonNull(organisationMapper);
+        this.clientMapper = Objects.requireNonNull(clientMapper);
+        this.employeeMapper = Objects.requireNonNull(employeeMapper);
     }
 
     @Transactional
@@ -51,10 +57,7 @@ public class ClientOnboardingService {
                 input.getTelephone());
         dataStore.save(IClientMapper.class, client);
 
-        //2. Create User (go through user service to encode pwd)
-        User user = userService.save(input.getEmailAddress(), input.getPassword(), null);
-
-        //3. Create Organisation
+        //2. Create Organisation
         Organisation org = Organisation.builder()
                 .fullName(input.getCompanyName())
                 .client(client)
@@ -64,7 +67,7 @@ public class ClientOnboardingService {
                 .build();
         dataStore.save(IOrganisationMapper.class, org);
 
-        //4. Create Employee
+        //3. Create Employee
         Employee employee = Employee.createOwner(
                 input.getTitle(),
                 input.getFirstName(),
@@ -72,9 +75,17 @@ public class ClientOnboardingService {
                 input.getEmailAddress(),
                 input.getTelephone(),
                 client,
-                org,
-                user);
+                org);
         dataStore.save(IEmployeeMapper.class, employee);
+
+        //4. Create User (go through user service to encode pwd)
+        User user = userService.createNewClientUser(
+                input.getEmailAddress(),
+                input.getPassword(),
+                null,
+                client,
+                org,
+                employee);
 
         return SUCCESS;
     }
@@ -89,5 +100,24 @@ public class ClientOnboardingService {
         if (organisationMapper.findByFullName(input.getCompanyName()) != null) {
             throw new InvalidInputException("Company already in-use.");
         }
+    }
+
+    @Transactional
+    public String removeAllClientData(String clientEmail) {
+        EmailTelephone emailTelephone = EmailTelephone.builder().email(clientEmail).build();
+        Client client = Client.builder().clientContactDetails(emailTelephone).build();
+
+        //client
+        Long clientId = clientMapper.findId(client);
+        if (clientId == null) {
+            return "Cannot find client";
+        }
+
+        dataStore.hardDeleteBy(IClientMapper.class, "deleteById", clientId);
+        dataStore.hardDeleteBy(IOrganisationMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(IEmployeeMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
+
+        return SUCCESS;
     }
 }

@@ -1,6 +1,7 @@
 package co.hrsquare.bindad.mapper;
 
 import co.hrsquare.bindad.model.organisation.Organisation;
+import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
@@ -28,4 +29,9 @@ public interface IOrganisationMapper {
             "and is_deleted = 0")
     Organisation findByFullName(String name);
 
+    @Delete("<script>" +
+                "delete from tbl_organisation " +
+                "where client_id = #{clientId}; " +
+            "</script>")
+    void deleteByClientId(Long clientId);
 }

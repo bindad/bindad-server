@@ -2,6 +2,9 @@ drop table tbl_user;
 
 create table tbl_user (
 	id bigint not null auto_increment,
+	client_id bigint null,
+	organisation_id bigint null,
+	employee_id bigint null,
     username varchar(255) not null,
     password varchar(255) not null,
     authorities varchar(255) null,
@@ -102,7 +105,6 @@ create table tbl_employee (
 	id bigint not null auto_increment,
     client_id bigint not null,
     organisation_id bigint not null,
-    user_id bigint not null,
 
     title varchar(10) null,
     first_name varchar(32) null,
@@ -214,7 +216,7 @@ create table tbl_employee (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(work_email),
-    unique(client_id, organisation_id, user_id),
+    unique(client_id, organisation_id),
     primary key (id)
 );
 
