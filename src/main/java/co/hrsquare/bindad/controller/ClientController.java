@@ -83,11 +83,6 @@ public class ClientController {
         Objects.requireNonNull(input.getCompanyName());
     }
 
-    @PostMapping("/newLiveClient")
-    public String newLiveClient() {
-        return "SUCCESS";
-    }
-
     @PostMapping("/removeAllClientData")
     public String removeAllClientData(String clientEmail) {
         log.info("Handling removeAllClientData request for {}", clientEmail);
