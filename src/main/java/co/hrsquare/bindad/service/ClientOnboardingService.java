@@ -1,10 +1,10 @@
 package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
+import co.hrsquare.bindad.controller.input.ClientUpgradeInput;
 import co.hrsquare.bindad.controller.output.ClientSummary;
 import co.hrsquare.bindad.exception.InvalidInputException;
 import co.hrsquare.bindad.mapper.*;
-import co.hrsquare.bindad.model.auth.User;
 import co.hrsquare.bindad.model.client.Client;
 import co.hrsquare.bindad.model.client.ClientContractType;
 import co.hrsquare.bindad.model.client.ContractStatus;
@@ -55,7 +55,7 @@ public class ClientOnboardingService {
         }
 
         //1. Create Client
-        Client client = Client.createForDemo(
+        Client client = Client.createNewForDemo(
                 input.getTitle(),
                 input.getFirstName(),
                 input.getLastName(),
@@ -85,7 +85,7 @@ public class ClientOnboardingService {
         dataStore.save(IEmployeeMapper.class, employee);
 
         //4. Create User (go through user service to encode pwd)
-        User user = userService.createNewClientUser(
+        userService.createNewClientUser(
                 input.getEmailAddress(),
                 input.getPassword(),
                 null,
@@ -93,7 +93,7 @@ public class ClientOnboardingService {
                 org,
                 employee);
 
-        return SUCCESS;
+        return client.getPublicId();
     }
 
     private void validateSignUpInput(ClientDemoSignUpInput input) throws InvalidInputException {
@@ -109,7 +109,7 @@ public class ClientOnboardingService {
     }
 
     @Transactional
-    public String removeAllClientData(String clientEmail) {
+    public String removeAllClientData(String clientEmail, boolean keepUsers) {
         EmailTelephone emailTelephone = EmailTelephone.builder().email(clientEmail).build();
         Client client = Client.builder().clientContactDetails(emailTelephone).build();
 
@@ -122,13 +122,16 @@ public class ClientOnboardingService {
         dataStore.hardDeleteBy(IClientMapper.class, "deleteById", clientId);
         dataStore.hardDeleteBy(IOrganisationMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IEmployeeMapper.class, "deleteByClientId", clientId);
-        dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
+        if (!keepUsers) {
+            dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
+        }
 
         return SUCCESS;
     }
 
     public ClientSummary getClientSummary(String clientPublicId) {
-        Client c = clientMapper.findByPublicId(clientPublicId);
+        Client query = Client.builder().publicId(clientPublicId).build();
+        Client c = clientMapper.findBy(query);
         if (c == null) {
             return NO_CLIENT_INFO;
         }
@@ -149,10 +152,57 @@ public class ClientOnboardingService {
             if (ContractStatus.DEMO_EXPIRED == c.getClientContract().getContractStatus()) {
                 return "Demo (expired)";
             } else {
-                return "Demo (Expires: " + c.getClientContract().getContractEndDate() + ")";
+                return c.getClientContract().getContractStatus() + " (Expires: " + c.getClientContract().getContractEndDate() + ")";
             }
         } else {
             return c.getClientContract().getContractStatus().name();
         }
+    }
+
+    @Transactional
+    public String upgradeClient(ClientUpgradeInput input) {
+        Client queryClient;
+        if (input.getClientEmail() != null) {
+            EmailTelephone emailTelephone = EmailTelephone.builder().email(input.getClientEmail()).build();
+            queryClient = Client.builder().clientContactDetails(emailTelephone).build();
+        } else {
+            queryClient = Client.builder().publicId(input.getClientPublicId()).build();
+        }
+
+        Client client = clientMapper.findBy(queryClient);
+        if (client == null) {
+            return "Cannot find client";
+        }
+
+        //remove all demo account data (any entered employees, other data would be removed!)
+        removeAllClientData(client.getClientContactDetails().getEmail(), true);
+
+        //1. create new upgraded client
+        Client upgradedClient = Client.createNewUpgradedFromDemo(client, input.getContractStartDate());
+        dataStore.save(IClientMapper.class, upgradedClient);
+
+        //2. Create Organisation
+        Organisation org = Organisation.builder()
+                .fullName(input.getCompanyName())
+                .client(upgradedClient)
+                .deleted(false)
+                .updatedBy(-1)
+                .updatedTime(LocalDateTime.now())
+                .build();
+        dataStore.save(IOrganisationMapper.class, org);
+
+        //3. Create Employee
+        Employee employee = Employee.createOwner(
+                upgradedClient.getClientNameDetails().getTitle().name(),
+                upgradedClient.getClientNameDetails().getFirstName(),
+                upgradedClient.getClientNameDetails().getLastName(),
+                upgradedClient.getClientContactDetails().getEmail(),
+                upgradedClient.getClientContactDetails().getTelephone(),
+                upgradedClient,
+                org);
+        dataStore.save(IEmployeeMapper.class, employee);
+
+
+        return upgradedClient.getPublicId();
     }
 }

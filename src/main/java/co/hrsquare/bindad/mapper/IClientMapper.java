@@ -10,7 +10,14 @@ import java.time.LocalDateTime;
 @Mapper
 public interface IClientMapper {
 
-    @Select("select id from tbl_client where email=#{clientContactDetails.email}")
+    @Select("<script>" +
+                "select id from tbl_client " +
+                "<choose>" +
+                    "<when test=\"clientContactDetails != null and clientContactDetails.email != null \"> where email=#{clientContactDetails.email} </when>" +
+                    "<when test=\"publicId != null \"> where public_id=#{publicId} </when>" +
+                    "<otherwise> where 1=2 </otherwise>" +
+                "</choose>" +
+            "</script>")
     Long findId(Client client);
 
     @Insert("insert into tbl_client (" +
@@ -62,7 +69,8 @@ public interface IClientMapper {
             "</script>")
     void deleteById(Long clientId);
 
-    @Select("select " +
+    @Select("<script>" +
+            "select " +
                 "id, " +
                 "public_id, " +
                 "title, " +
@@ -82,7 +90,12 @@ public interface IClientMapper {
                 "updated_by, " +
                 "updated_time " +
             "from tbl_client " +
-            "where public_id = #{clientPublicId}")
+            "<choose>" +
+                "<when test=\"clientContactDetails != null and clientContactDetails.email != null \"> where email=#{clientContactDetails.email} </when>" +
+                "<when test=\"publicId != null \"> where public_id=#{publicId} </when>" +
+                "<otherwise> where 1=2 </otherwise>" +
+            "</choose>" +
+            "</script>")
     @Results({
             @Result(property = "publicId", column = "public_id"),
             @Result(property = "clientNameDetails.title", column = "title", typeHandler = EnumTypeHandler.class),
@@ -101,5 +114,5 @@ public interface IClientMapper {
             @Result(property = "updatedBy", column = "updated_by"),
             @Result(property = "updatedTime", column = "updated_time")
     })
-    Client findByPublicId(String clientPublicId);
+    Client findBy(Client client);
 }

@@ -29,8 +29,8 @@ public class Client {
     private long updatedBy;
     private LocalDateTime updatedTime;
 
-    public static Client createForDemo(String title, String firstName, String lastName,
-                                       String emailAddress, String telephone) {
+    public static Client createNewForDemo(String title, String firstName, String lastName,
+                                          String emailAddress, String telephone) {
         FullNameDetails fullNameDetails = FullNameDetails.builder()
                 .title(Title.valueOf(title))
                 .firstName(firstName)
@@ -72,4 +72,34 @@ public class Client {
     }
 
 
+    public static Client createNewUpgradedFromDemo(Client demoClient, LocalDate contractStartDate) {
+        FullNameDetails fullNameDetails = FullNameDetails.builder()
+                .title(Title.valueOf(demoClient.getClientNameDetails().getTitle().name()))
+                .firstName(demoClient.getClientNameDetails().getFirstName())
+                .lastName(demoClient.getClientNameDetails().getLastName())
+                .build();
+
+        EmailTelephone emailTelephone = EmailTelephone.builder()
+                .email(demoClient.getClientContactDetails().getEmail())
+                .telephone(demoClient.getClientContactDetails().getTelephone())
+                .build();
+
+        ClientContract clientContract = ClientContract.builder()
+                .clientContractType(ClientContractType.Live)
+                .contractStatus(ContractStatus.ACTIVE)
+                .contractStartDate(contractStartDate)
+                .build();
+
+        Client c = new Client();
+        //new id generated here, so we discard demo id
+        c.setPublicId(generatePublicId());
+        c.setClientNameDetails(fullNameDetails);
+        c.setClientContactDetails(emailTelephone);
+        c.setClientContract(clientContract);
+        c.setDeleted(false);
+        c.setUpdatedBy(-1);
+        c.setUpdatedTime(LocalDateTime.now());
+
+        return c;
+    }
 }
