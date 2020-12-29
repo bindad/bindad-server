@@ -202,6 +202,7 @@ public class ClientOnboardingService {
                 org);
         dataStore.save(IEmployeeMapper.class, employee);
 
+        //4. we already kept the users to avoid people to re-sign-up.
 
         return upgradedClient.getPublicId();
     }
