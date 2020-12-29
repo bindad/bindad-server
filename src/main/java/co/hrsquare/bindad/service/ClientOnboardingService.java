@@ -1,7 +1,7 @@
 package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
-import co.hrsquare.bindad.controller.input.ClientUpgradeInput;
+import co.hrsquare.bindad.controller.input.ClientFullSignUpInput;
 import co.hrsquare.bindad.controller.output.ClientSummary;
 import co.hrsquare.bindad.exception.InvalidInputException;
 import co.hrsquare.bindad.mapper.*;
@@ -109,7 +109,7 @@ public class ClientOnboardingService {
     }
 
     @Transactional
-    public String removeAllClientData(String clientEmail, boolean keepUsers) {
+    public String removeAllClientData(String clientEmail) {
         EmailTelephone emailTelephone = EmailTelephone.builder().email(clientEmail).build();
         Client client = Client.builder().clientContactDetails(emailTelephone).build();
 
@@ -122,9 +122,7 @@ public class ClientOnboardingService {
         dataStore.hardDeleteBy(IClientMapper.class, "deleteById", clientId);
         dataStore.hardDeleteBy(IOrganisationMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IEmployeeMapper.class, "deleteByClientId", clientId);
-        if (!keepUsers) {
-            dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
-        }
+        dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
 
         return SUCCESS;
     }
@@ -160,31 +158,34 @@ public class ClientOnboardingService {
     }
 
     @Transactional
-    public String upgradeClient(ClientUpgradeInput input) {
-        Client queryClient;
-        if (input.getClientEmail() != null) {
-            EmailTelephone emailTelephone = EmailTelephone.builder().email(input.getClientEmail()).build();
-            queryClient = Client.builder().clientContactDetails(emailTelephone).build();
-        } else {
-            queryClient = Client.builder().publicId(input.getClientPublicId()).build();
+    public String newClient(ClientFullSignUpInput input) {
+        String demoEmailAddress = input.getDemoEmailAddress();
+        if (demoEmailAddress != null) {
+            EmailTelephone emailTelephone = EmailTelephone.builder().email(demoEmailAddress).build();
+            Client queryClient = Client.builder().clientContactDetails(emailTelephone).build();
+
+            Client client = clientMapper.findBy(queryClient);
+            if (client == null) {
+                log.warn("Could not find client data for demo: {}", demoEmailAddress);
+            } else {
+                //remove all demo account data (any entered employees, other data would be removed!)
+                removeAllClientData(client.getClientContactDetails().getEmail());
+            }
         }
 
-        Client client = clientMapper.findBy(queryClient);
-        if (client == null) {
-            return "Cannot find client";
-        }
-
-        //remove all demo account data (any entered employees, other data would be removed!)
-        removeAllClientData(client.getClientContactDetails().getEmail(), true);
-
-        //1. create new upgraded client
-        Client upgradedClient = Client.createNewUpgradedFromDemo(client, input.getContractStartDate());
-        dataStore.save(IClientMapper.class, upgradedClient);
+        //1. Create Client
+        Client client = Client.createNew(
+                input.getTitle(),
+                input.getFirstName(),
+                input.getLastName(),
+                input.getEmailAddress(),
+                input.getTelephone());
+        dataStore.save(IClientMapper.class, client);
 
         //2. Create Organisation
         Organisation org = Organisation.builder()
                 .fullName(input.getCompanyName())
-                .client(upgradedClient)
+                .client(client)
                 .deleted(false)
                 .updatedBy(-1)
                 .updatedTime(LocalDateTime.now())
@@ -193,17 +194,25 @@ public class ClientOnboardingService {
 
         //3. Create Employee
         Employee employee = Employee.createOwner(
-                upgradedClient.getClientNameDetails().getTitle().name(),
-                upgradedClient.getClientNameDetails().getFirstName(),
-                upgradedClient.getClientNameDetails().getLastName(),
-                upgradedClient.getClientContactDetails().getEmail(),
-                upgradedClient.getClientContactDetails().getTelephone(),
-                upgradedClient,
+                input.getTitle(),
+                input.getFirstName(),
+                input.getLastName(),
+                input.getEmailAddress(),
+                input.getTelephone(),
+                client,
                 org);
         dataStore.save(IEmployeeMapper.class, employee);
 
-        //4. we already kept the users to avoid people to re-sign-up.
+        //4. Create User (go through user service to encode pwd)
+        userService.createNewClientUser(
+                input.getEmailAddress(),
+                input.getPassword(),
+                null,
+                client,
+                org,
+                employee);
 
-        return upgradedClient.getPublicId();
+
+        return client.getPublicId();
     }
 }

@@ -61,37 +61,26 @@ public class Client {
         return c;
     }
 
-    private static String generatePublicId() {
-        //16 digit random id
-        long start = 1000000000000000L;
-        long end = 9999999999999999L;
-
-        long range = end - start + 1;
-        long fraction = (long)(range * new Random().nextDouble());
-        return String.valueOf(start + fraction);
-    }
-
-
-    public static Client createNewUpgradedFromDemo(Client demoClient, LocalDate contractStartDate) {
+    public static Client createNew(String title, String firstName, String lastName,
+                                          String emailAddress, String telephone) {
         FullNameDetails fullNameDetails = FullNameDetails.builder()
-                .title(Title.valueOf(demoClient.getClientNameDetails().getTitle().name()))
-                .firstName(demoClient.getClientNameDetails().getFirstName())
-                .lastName(demoClient.getClientNameDetails().getLastName())
+                .title(Title.valueOf(title))
+                .firstName(firstName)
+                .lastName(lastName)
                 .build();
 
         EmailTelephone emailTelephone = EmailTelephone.builder()
-                .email(demoClient.getClientContactDetails().getEmail())
-                .telephone(demoClient.getClientContactDetails().getTelephone())
+                .email(emailAddress)
+                .telephone(telephone)
                 .build();
 
         ClientContract clientContract = ClientContract.builder()
                 .clientContractType(ClientContractType.Live)
                 .contractStatus(ContractStatus.ACTIVE)
-                .contractStartDate(contractStartDate)
+                .contractStartDate(LocalDate.now())
                 .build();
 
         Client c = new Client();
-        //new id generated here, so we discard demo id
         c.setPublicId(generatePublicId());
         c.setClientNameDetails(fullNameDetails);
         c.setClientContactDetails(emailTelephone);
@@ -101,5 +90,15 @@ public class Client {
         c.setUpdatedTime(LocalDateTime.now());
 
         return c;
+    }
+
+    private static String generatePublicId() {
+        //16 digit random id
+        long start = 1000000000000000L;
+        long end = 9999999999999999L;
+
+        long range = end - start + 1;
+        long fraction = (long)(range * new Random().nextDouble());
+        return String.valueOf(start + fraction);
     }
 }
