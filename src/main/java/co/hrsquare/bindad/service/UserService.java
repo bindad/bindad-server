@@ -1,34 +1,41 @@
 package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.UserAuthInput;
+import co.hrsquare.bindad.mapper.DataStore;
 import co.hrsquare.bindad.mapper.IUserMapper;
 import co.hrsquare.bindad.model.auth.User;
+import co.hrsquare.bindad.model.client.Client;
+import co.hrsquare.bindad.model.employee.Employee;
+import co.hrsquare.bindad.model.organisation.Organisation;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Bean;
-import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
 
 import java.time.LocalDateTime;
+import java.util.Objects;
 
 @Component
 @Slf4j
 public class UserService {
 
+    private final DataStore dataStore;
     private final IUserMapper userMapper;
     private final PasswordEncoder passwordEncoder;
 
-    public UserService(IUserMapper userMapper,
-                       PasswordEncoder passwordEncoder) {
-        this.userMapper = userMapper;
-        this.passwordEncoder = passwordEncoder;
+    public UserService(final DataStore dataStore,
+                       final IUserMapper userMapper,
+                       final PasswordEncoder passwordEncoder) {
+        this.dataStore = Objects.requireNonNull(dataStore);
+        this.userMapper = Objects.requireNonNull(userMapper);
+        this.passwordEncoder = Objects.requireNonNull(passwordEncoder);
     }
 
     public boolean checkUsernameExists(String username) {
         return userMapper.findByUsername(username) != null;
     }
 
-    public String createNewUser(UserAuthInput input) {
+    public long createNewSuperUser(UserAuthInput input) {
+        //this wont be attached to a client
         User newUser = new User();
         newUser.setUsername(input.getUsername());
         newUser.setPassword(passwordEncoder.encode(input.getPassword()));
@@ -39,7 +46,7 @@ public class UserService {
         userMapper.insert(newUser);
         log.info("Successfully created new user {}", newUser.getUsername());
 
-        return "SUCCESS";
+        return userMapper.findByUsername(newUser.getUsername()).getId();
     }
 
     private static String toCsv(String[] authorities) {
@@ -76,5 +83,23 @@ public class UserService {
 
     public User loadUserAuthDetails(String username) {
         return userMapper.findByUsername(username);
+    }
+
+    public User createNewClientUser(String username, String rawPassword, String authorities,
+                                    Client client, Organisation organisation, Employee employee) {
+        User user = User.builder()
+                .username(username)
+                .password(passwordEncoder.encode(rawPassword))
+                .authorities(authorities)
+                .client(client)
+                .organisation(organisation)
+                .employee(employee)
+                .deleted(false)
+                .updatedBy(-1)
+                .updatedTime(LocalDateTime.now())
+                .build();
+
+        dataStore.save(IUserMapper.class, user);
+        return user;
     }
 }

@@ -1,5 +1,10 @@
+drop table tbl_user;
+
 create table tbl_user (
 	id bigint not null auto_increment,
+	client_id bigint null,
+	organisation_id bigint null,
+	employee_id bigint null,
     username varchar(255) not null,
     password varchar(255) not null,
     authorities varchar(255) null,
@@ -10,9 +15,12 @@ create table tbl_user (
     primary key (id)
 );
 
+drop table tbl_client;
+
 create table tbl_client (
 	id bigint not null auto_increment,
 
+    public_id varchar(64) not null,
     title varchar(10) not null,
     first_name varchar(32) not null,
     known_as varchar(32) null,
@@ -24,7 +32,8 @@ create table tbl_client (
     telephone_ext varchar(32) null,
     mobile varchar(32) null,
 
-    contract_type varchar(32) not null,
+    contract_type varchar(32) null,
+    contract_status varchar(64) null,
     contract_start_date date not null,
     contract_end_date date null,
 
@@ -32,8 +41,11 @@ create table tbl_client (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(email),
+    unique(public_id),
     primary key (id)
 );
+
+drop table tbl_client_bill;
 
 create table tbl_client_bill (
 	id bigint not null auto_increment,
@@ -53,6 +65,8 @@ create table tbl_client_bill (
     primary key (id)
 );
 
+drop table tbl_organisation;
+
 create table tbl_organisation (
 	id bigint not null auto_increment,
     client_id bigint not null,
@@ -65,8 +79,11 @@ create table tbl_organisation (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(public_id),
+    unique(full_name),
     primary key (id)
 );
+
+drop table tbl_department;
 
 create table tbl_department (
 	id bigint not null auto_increment,
@@ -84,24 +101,25 @@ create table tbl_department (
     primary key (id)
 );
 
+drop table tbl_employee;
+
 create table tbl_employee (
 	id bigint not null auto_increment,
     client_id bigint not null,
     organisation_id bigint not null,
-    user_id bigint not null,
 
     title varchar(10) null,
     first_name varchar(32) null,
     known_as varchar(32) null,
     middle_initial varchar(5) null,
-    last_name varchar(32) not null,
+    last_name varchar(32) null,
 
-    work_email varchar(255) not null,
+    work_email varchar(255) null,
     work_telephone varchar(32) null,
     work_telephone_ext varchar(32) null,
     work_mobile varchar(32) null,
 
-    home_email varchar(255) not null,
+    home_email varchar(255) null,
     home_telephone varchar(32) null,
     home_telephone_ext varchar(32) null,
     home_mobile varchar(32) null,
@@ -183,9 +201,9 @@ create table tbl_employee (
     emergency_contact_first_name varchar(32) null,
     emergency_contact_known_as varchar(32) null,
     emergency_contact_middle_initial varchar(5) null,
-    emergency_contact_last_name varchar(32) not null,
+    emergency_contact_last_name varchar(32) null,
 
-    emergency_contact_email varchar(255) not null,
+    emergency_contact_email varchar(255) null,
     emergency_contact_telephone varchar(32) null,
     emergency_contact_telephone_ext varchar(32) null,
     emergency_contact_mobile varchar(32) null,
@@ -200,9 +218,11 @@ create table tbl_employee (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(work_email),
-    unique(client_id, organisation_id, user_id),
+    unique(client_id, organisation_id),
     primary key (id)
 );
+
+drop table tbl_address;
 
 create table tbl_address (
 	id bigint not null auto_increment,
@@ -226,6 +246,8 @@ create table tbl_address (
     unique(client_id, organisation_id, employee_id),
     primary key (id)
 );
+
+drop table tbl_week_hours;
 
 create table tbl_week_hours (
 	id bigint not null auto_increment,
@@ -251,6 +273,8 @@ create table tbl_week_hours (
     primary key (id)
 );
 
+drop table tbl_nic_table_letter;
+
 create table tbl_nic_table_letter (
 	id bigint not null auto_increment,
 
@@ -264,16 +288,18 @@ create table tbl_nic_table_letter (
     primary key (id)
 );
 
+drop table tbl_p45_circumstances_at_start;
+
 create table tbl_p45_circumstances_at_start (
 	id bigint not null auto_increment,
 
     circumstances_letter_code char(1) null,
-    circumstances__description varchar(255) null,
+    circumstances_description varchar(255) null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(circumstances_letter_code, circumstances__description),
+    unique(circumstances_letter_code, circumstances_description),
     primary key (id)
 );
 

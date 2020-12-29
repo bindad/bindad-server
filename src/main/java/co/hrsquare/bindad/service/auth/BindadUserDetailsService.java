@@ -35,7 +35,7 @@ public class BindadUserDetailsService implements UserDetailsService {
             UserAuthInput input = new UserAuthInput();
             input.setUsername("admin");
             input.setPassword("badmin");
-            userService.createNewUser(input);
+            userService.createNewSuperUser(input);
         }
 
         User user = userService.loadUserAuthDetails(username);

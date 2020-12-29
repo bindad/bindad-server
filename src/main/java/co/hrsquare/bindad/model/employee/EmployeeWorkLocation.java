@@ -12,8 +12,8 @@ public class EmployeeWorkLocation {
 
     private Address location;
     private HomeWorkingType homeWorkingType;
-    //day id start from 1 (1 = Monday)
-    private Set<Integer> daysHomeWorking;
+    //CSV start from 1 (1 = Monday)
+    private String daysHomeWorking;
     private AdHocFromHome adHocFromHome;
 
 }

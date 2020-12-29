@@ -12,7 +12,7 @@ public class EmployeeContract {
     private EmployeeContractType type;
     private LocalDate startDate;
     private LocalDate continuedServiceDate;
-    private EmployeePermanentOrFixedTerm permanentOrFixedTerm;
+    private boolean permanent;
     private LocalDate probationEndDate;
     private NoticePeriod employerNoticePeriod;
     private NoticePeriod employeeNoticePeriod;

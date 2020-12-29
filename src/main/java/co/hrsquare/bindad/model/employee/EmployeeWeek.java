@@ -1,11 +1,17 @@
 package co.hrsquare.bindad.model.employee;
 
+import co.hrsquare.bindad.model.client.Client;
+import co.hrsquare.bindad.model.organisation.Organisation;
 import lombok.Data;
 import lombok.NoArgsConstructor;
+
+import java.time.LocalDateTime;
 
 @Data
 @NoArgsConstructor
 public class EmployeeWeek {
+    private long id;
+
     private HoursForDay monday;
     private HoursForDay tuesday;
     private HoursForDay wednesday;
@@ -14,4 +20,11 @@ public class EmployeeWeek {
     private HoursForDay saturday;
     private HoursForDay sunday;
 
+    private Organisation organisation;
+    private Client client;
+    private Employee employee;
+
+    private boolean deleted;
+    private long updatedBy;
+    private LocalDateTime updatedTime;
 }

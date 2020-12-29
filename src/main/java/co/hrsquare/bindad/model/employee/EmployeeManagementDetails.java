@@ -9,8 +9,8 @@ import java.util.Set;
 @NoArgsConstructor
 public class EmployeeManagementDetails {
 
-    private String reportsToId;
-    private Set<String> directlyManagesIds;
+    private Employee reportsTo;
+    private Set<Employee> directlyManages;
 
 
 }
