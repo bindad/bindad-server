@@ -10,6 +10,7 @@ import lombok.NoArgsConstructor;
 @AllArgsConstructor
 @Builder
 public class ClientSummary {
+    public static final ClientSummary NO_CLIENT_INFO = new ClientSummary();
 
     private String clientPublicId;
     private String fullContactName;

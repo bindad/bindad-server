@@ -17,6 +17,9 @@ import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
 import java.util.Objects;
+import java.util.Optional;
+
+import static co.hrsquare.bindad.controller.output.ClientSummary.NO_CLIENT_INFO;
 
 @Component
 @Slf4j
@@ -126,13 +129,16 @@ public class ClientOnboardingService {
 
     public ClientSummary getClientSummary(String clientPublicId) {
         Client c = clientMapper.findByPublicId(clientPublicId);
-        Organisation org = organisationMapper.findByClientId(c.getId());
+        if (c == null) {
+            return NO_CLIENT_INFO;
+        }
 
+        Organisation org = organisationMapper.findByClientId(c.getId());
         return ClientSummary.builder()
                 .clientPublicId(c.getPublicId())
                 .fullContactName(c.getClientNameDetails().fullName())
                 .emailAddress(c.getClientContactDetails().getEmail())
-                .companyName(org.getFullName())
+                .companyName(Optional.ofNullable(org).map(Organisation::getFullName).orElse("<No company registered>"))
                 .contractType(c.getClientContract().getClientContractType().name())
                 .contractStatus(createStatus(c))
                 .build();
