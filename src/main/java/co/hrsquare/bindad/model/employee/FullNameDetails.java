@@ -5,6 +5,8 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.Optional;
+
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
@@ -16,5 +18,12 @@ public class FullNameDetails {
     private String knownAs;
     private String middleInitial;
     private String lastName;
+
+    public String fullName() {
+        return title + ". "
+                + firstName + Optional.ofNullable(knownAs).map(s -> " (" + s + ") ").orElse("")
+                + Optional.ofNullable(middleInitial).map(s -> middleInitial + ". ").orElse("")
+                + lastName;
+    }
 
 }

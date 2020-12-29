@@ -1,13 +1,12 @@
 package co.hrsquare.bindad.controller;
 
 import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
+import co.hrsquare.bindad.controller.output.ClientSummary;
 import co.hrsquare.bindad.model.organisation.Organisation;
 import co.hrsquare.bindad.model.employee.Employee;
 import co.hrsquare.bindad.service.ClientOnboardingService;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.Objects;
 
@@ -37,6 +36,18 @@ public class ClientController {
 
         log.info("DONE Handling newClientDemo request for {}", input);
         return res;
+    }
+
+    @GetMapping("/clientInfoSummary")
+    public ClientSummary clientSummary(@RequestParam String clientPublicId) {
+        log.info("Handling clientInfoSummary request for {}", clientPublicId);
+        Objects.requireNonNull(clientPublicId);
+
+        ClientSummary summary = clientOnboardingService.getClientSummary(clientPublicId);
+
+        log.info("DONE Handling clientInfoSummary request for {}", clientPublicId);
+
+        return summary;
     }
 
     private void validateInput(ClientDemoSignUpInput input) {

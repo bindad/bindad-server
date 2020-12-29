@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.temporal.ChronoUnit;
-import java.time.temporal.TemporalUnit;
+import java.util.Random;
 
 @Data
 @NoArgsConstructor
@@ -20,6 +20,7 @@ import java.time.temporal.TemporalUnit;
 public class Client {
 
     private long id;
+    private String publicId;
     private FullNameDetails clientNameDetails;
     private EmailTelephone clientContactDetails;
     private ClientContract clientContract;
@@ -49,6 +50,7 @@ public class Client {
                 .build();
 
         Client c = new Client();
+        c.setPublicId(generatePublicId());
         c.setClientNameDetails(fullNameDetails);
         c.setClientContactDetails(emailTelephone);
         c.setClientContract(clientContract);
@@ -58,4 +60,16 @@ public class Client {
 
         return c;
     }
+
+    private static String generatePublicId() {
+        //16 digit random id
+        long start = 1000000000000000L;
+        long end = 9999999999999999L;
+
+        long range = end - start + 1;
+        long fraction = (long)(range * new Random().nextDouble());
+        return String.valueOf(start + fraction);
+    }
+
+
 }

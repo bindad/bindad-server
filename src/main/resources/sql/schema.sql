@@ -20,6 +20,7 @@ drop table tbl_client;
 create table tbl_client (
 	id bigint not null auto_increment,
 
+    public_id varchar(64) not null,
     title varchar(10) not null,
     first_name varchar(32) not null,
     known_as varchar(32) null,
@@ -40,6 +41,7 @@ create table tbl_client (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(email),
+    unique(public_id),
     primary key (id)
 );
 

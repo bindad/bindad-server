@@ -1,10 +1,13 @@
 package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
+import co.hrsquare.bindad.controller.output.ClientSummary;
 import co.hrsquare.bindad.exception.InvalidInputException;
 import co.hrsquare.bindad.mapper.*;
 import co.hrsquare.bindad.model.auth.User;
 import co.hrsquare.bindad.model.client.Client;
+import co.hrsquare.bindad.model.client.ClientContractType;
+import co.hrsquare.bindad.model.client.ContractStatus;
 import co.hrsquare.bindad.model.employee.EmailTelephone;
 import co.hrsquare.bindad.model.employee.Employee;
 import co.hrsquare.bindad.model.organisation.Organisation;
@@ -119,5 +122,31 @@ public class ClientOnboardingService {
         dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
 
         return SUCCESS;
+    }
+
+    public ClientSummary getClientSummary(String clientPublicId) {
+        Client c = clientMapper.findByPublicId(clientPublicId);
+        Organisation org = organisationMapper.findByClientId(c.getId());
+
+        return ClientSummary.builder()
+                .clientPublicId(c.getPublicId())
+                .fullContactName(c.getClientNameDetails().fullName())
+                .emailAddress(c.getClientContactDetails().getEmail())
+                .companyName(org.getFullName())
+                .contractType(c.getClientContract().getClientContractType().name())
+                .contractStatus(createStatus(c))
+                .build();
+    }
+
+    private String createStatus(Client c) {
+        if (ClientContractType.Demo == c.getClientContract().getClientContractType()) {
+            if (ContractStatus.DEMO_EXPIRED == c.getClientContract().getContractStatus()) {
+                return "Demo (expired)";
+            } else {
+                return "Demo (Expires: " + c.getClientContract().getContractEndDate() + ")";
+            }
+        } else {
+            return c.getClientContract().getContractStatus().name();
+        }
     }
 }
