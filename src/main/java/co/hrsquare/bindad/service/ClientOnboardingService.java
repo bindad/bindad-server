@@ -121,6 +121,7 @@ public class ClientOnboardingService {
 
         dataStore.hardDeleteBy(IClientMapper.class, "deleteById", clientId);
         dataStore.hardDeleteBy(IOrganisationMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(IDepartmentMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IEmployeeMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
 

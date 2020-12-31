@@ -87,8 +87,8 @@ drop table tbl_department;
 
 create table tbl_department (
 	id bigint not null auto_increment,
-    organisation_id bigint not null,
     client_id bigint not null,
+    organisation_id bigint not null,
 
     public_id varchar(32) null,
     full_name varchar(255) null,
@@ -97,7 +97,8 @@ create table tbl_department (
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(public_id),
+    unique(client_id, organisation_id, public_id),
+    unique(client_id, organisation_id, full_name),
     primary key (id)
 );
 

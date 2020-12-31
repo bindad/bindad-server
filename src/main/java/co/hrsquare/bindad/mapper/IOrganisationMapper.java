@@ -24,6 +24,15 @@ public interface IOrganisationMapper {
             "from tbl_organisation " +
             "where full_name=#{name} " +
             "and is_deleted = 0")
+    @Results({
+            @Result(column = "client_id", property = "client.id"),
+            @Result(column = "public_id", property = "publicId"),
+            @Result(column = "full_name", property = "fullName"),
+            @Result(column = "short_name", property = "shortName"),
+            @Result(column = "is_deleted", property = "deleted"),
+            @Result(column = "updated_by", property = "updatedBy"),
+            @Result(column = "updated_time", property = "updatedTime")
+    })
     Organisation findByFullName(String name);
 
     @Delete("<script>" +
