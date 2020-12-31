@@ -1,4 +1,4 @@
-package co.hrsquare.bindad.model.organisation;
+package co.hrsquare.bindad.model.company;
 
 import co.hrsquare.bindad.model.client.Client;
 import lombok.AllArgsConstructor;
@@ -20,7 +20,7 @@ public class Department {
     private String fullName;
     private String shortName;
 
-    private Organisation organisation;
+    private Company company;
     private Client client;
 
     private boolean deleted;

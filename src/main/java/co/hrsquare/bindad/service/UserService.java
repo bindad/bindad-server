@@ -6,7 +6,7 @@ import co.hrsquare.bindad.mapper.IUserMapper;
 import co.hrsquare.bindad.model.auth.User;
 import co.hrsquare.bindad.model.client.Client;
 import co.hrsquare.bindad.model.employee.Employee;
-import co.hrsquare.bindad.model.organisation.Organisation;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Component;
@@ -86,13 +86,13 @@ public class UserService {
     }
 
     public User createNewClientUser(String username, String rawPassword, String authorities,
-                                    Client client, Organisation organisation, Employee employee) {
+                                    Client client, Company company, Employee employee) {
         User user = User.builder()
                 .username(username)
                 .password(passwordEncoder.encode(rawPassword))
                 .authorities(authorities)
                 .client(client)
-                .organisation(organisation)
+                .company(company)
                 .employee(employee)
                 .deleted(false)
                 .updatedBy(-1)

@@ -1,6 +1,5 @@
 package co.hrsquare.bindad.service;
 
-import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
 import co.hrsquare.bindad.controller.input.ClientFullSignUpInput;
 import co.hrsquare.bindad.controller.input.DepartmentInput;
 import co.hrsquare.bindad.controller.input.DepartmentsInput;
@@ -13,16 +12,14 @@ import org.springframework.test.context.ActiveProfiles;
 
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
-
 @SpringBootTest
 @ActiveProfiles("local")
-class OrganisationServiceTest {
+class CompanyServiceTest {
 
     @Autowired
     private ClientOnboardingService clientOnboardingService;
     @Autowired
-    private OrganisationService organisationService;
+    private CompanyService companyService;
 
 
     @Test
@@ -50,10 +47,10 @@ class OrganisationServiceTest {
         DepartmentInput ops = DepartmentInput.builder().fullName("Operations").publicId("Ops").build();
         DepartmentsInput departmentsInput = DepartmentsInput.builder()
                 .departments(Arrays.asList(legal, hr, ops))
-                .orgFullName(liveClientSummary.getCompanyName())
+                .coFullName(liveClientSummary.getCompanyName())
                 .build();
 
-        organisationService.createOrUpdateDepartments(departmentsInput);
+        companyService.createOrUpdateDepartments(departmentsInput);
 
 //        clientOnboardingService.removeAllClientData("aseem.ruhela@myemail.com");
     }

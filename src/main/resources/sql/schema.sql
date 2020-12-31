@@ -3,7 +3,7 @@ drop table tbl_user;
 create table tbl_user (
 	id bigint not null auto_increment,
 	client_id bigint null,
-	organisation_id bigint null,
+	company_id bigint null,
 	employee_id bigint null,
     username varchar(255) not null,
     password varchar(255) not null,
@@ -65,15 +65,51 @@ create table tbl_client_bill (
     primary key (id)
 );
 
-drop table tbl_organisation;
+drop table tbl_company;
 
-create table tbl_organisation (
+create table tbl_company (
 	id bigint not null auto_increment,
     client_id bigint not null,
 
+    full_name varchar(255) not null,
     public_id varchar(32) null,
-    full_name varchar(255) null,
     short_name varchar(64) null,
+
+    trading_name varchar(255) not null,
+    registered_name varchar(255) not null,
+    website varchar(255) null,
+    contact_telephone varchar(32) null,
+    registered_charity_number varchar(32) null,
+    vat_number varchar(32) null,
+    is_partnership boolean null,
+
+    admin_title varchar(10) null,
+    admin_first_name varchar(32) null,
+    admin_known_as varchar(32) null,
+    admin_middle_initial varchar(5) null,
+    admin_last_name varchar(32) null,
+    admin_email varchar(255) null,
+    admin_telephone varchar(32) null,
+    admin_telephone_ext varchar(32) null,
+    admin_mobile varchar(32) null,
+
+    is_finance_same_as_admin boolean null,
+    finance_title varchar(10) null,
+    finance_first_name varchar(32) null,
+    finance_known_as varchar(32) null,
+    finance_middle_initial varchar(5) null,
+    finance_last_name varchar(32) null,
+    finance_email varchar(255) null,
+    finance_telephone varchar(32) null,
+    finance_telephone_ext varchar(32) null,
+    finance_mobile varchar(32) null,
+
+    primary_address_id bigint null,
+    other_1_address_id bigint null,
+    other_2_address_id bigint null,
+    other_3_address_id bigint null,
+    other_4_address_id bigint null,
+    other_5_address_id bigint null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
@@ -88,7 +124,7 @@ drop table tbl_department;
 create table tbl_department (
 	id bigint not null auto_increment,
     client_id bigint not null,
-    organisation_id bigint not null,
+    company_id bigint not null,
 
     public_id varchar(32) null,
     full_name varchar(255) null,
@@ -97,8 +133,8 @@ create table tbl_department (
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(client_id, organisation_id, public_id),
-    unique(client_id, organisation_id, full_name),
+    unique(client_id, company_id, public_id),
+    unique(client_id, company_id, full_name),
     primary key (id)
 );
 
@@ -107,7 +143,7 @@ drop table tbl_employee;
 create table tbl_employee (
 	id bigint not null auto_increment,
     client_id bigint not null,
-    organisation_id bigint not null,
+    company_id bigint not null,
 
     title varchar(10) null,
     first_name varchar(32) null,
@@ -219,7 +255,7 @@ create table tbl_employee (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(work_email),
-    unique(client_id, organisation_id),
+    unique(client_id, company_id),
     primary key (id)
 );
 
@@ -228,7 +264,7 @@ drop table tbl_address;
 create table tbl_address (
 	id bigint not null auto_increment,
     client_id bigint not null,
-    organisation_id bigint null,
+    company_id bigint null,
     employee_id bigint null,
 
     address_type varchar(64) null,
@@ -244,7 +280,7 @@ create table tbl_address (
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(client_id, organisation_id, employee_id),
+    unique(client_id, company_id, employee_id),
     primary key (id)
 );
 
@@ -253,7 +289,7 @@ drop table tbl_week_hours;
 create table tbl_week_hours (
 	id bigint not null auto_increment,
     client_id bigint not null,
-    organisation_id bigint null,
+    company_id bigint null,
     employee_id bigint null,
 
 	hours_type varchar(32) null,
@@ -270,7 +306,7 @@ create table tbl_week_hours (
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(client_id, organisation_id, employee_id),
+    unique(client_id, company_id, employee_id),
     primary key (id)
 );
 

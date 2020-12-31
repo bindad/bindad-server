@@ -10,7 +10,7 @@ import co.hrsquare.bindad.model.client.ClientContractType;
 import co.hrsquare.bindad.model.client.ContractStatus;
 import co.hrsquare.bindad.model.employee.EmailTelephone;
 import co.hrsquare.bindad.model.employee.Employee;
-import co.hrsquare.bindad.model.organisation.Organisation;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,18 +28,18 @@ public class ClientOnboardingService {
 
     private final UserService userService;
     private final DataStore dataStore;
-    private final IOrganisationMapper organisationMapper;
+    private final ICompanyMapper companyMapper;
     private final IClientMapper clientMapper;
     private final IEmployeeMapper employeeMapper;
 
     public ClientOnboardingService(final UserService userService,
                                    final DataStore dataStore,
-                                   final IOrganisationMapper organisationMapper,
+                                   final ICompanyMapper companyMapper,
                                    final IClientMapper clientMapper,
                                    final IEmployeeMapper employeeMapper) {
         this.userService = Objects.requireNonNull(userService);
         this.dataStore = Objects.requireNonNull(dataStore);
-        this.organisationMapper = Objects.requireNonNull(organisationMapper);
+        this.companyMapper = Objects.requireNonNull(companyMapper);
         this.clientMapper = Objects.requireNonNull(clientMapper);
         this.employeeMapper = Objects.requireNonNull(employeeMapper);
     }
@@ -63,15 +63,17 @@ public class ClientOnboardingService {
                 input.getTelephone());
         dataStore.save(IClientMapper.class, client);
 
-        //2. Create Organisation
-        Organisation org = Organisation.builder()
+        //2. Create company
+        Company co = Company.builder()
                 .fullName(input.getCompanyName())
+                .tradingName(input.getCompanyName())
+                .registeredName(input.getCompanyName())
                 .client(client)
                 .deleted(false)
                 .updatedBy(-1)
                 .updatedTime(LocalDateTime.now())
                 .build();
-        dataStore.save(IOrganisationMapper.class, org);
+        dataStore.save(ICompanyMapper.class, co);
 
         //3. Create Employee
         Employee employee = Employee.createOwner(
@@ -81,7 +83,7 @@ public class ClientOnboardingService {
                 input.getEmailAddress(),
                 input.getTelephone(),
                 client,
-                org);
+                co);
         dataStore.save(IEmployeeMapper.class, employee);
 
         //4. Create User (go through user service to encode pwd)
@@ -90,7 +92,7 @@ public class ClientOnboardingService {
                 input.getPassword(),
                 null,
                 client,
-                org,
+                co,
                 employee);
 
         return client.getPublicId();
@@ -102,8 +104,8 @@ public class ClientOnboardingService {
             throw new InvalidInputException("Email already in-use.");
         }
 
-        //organisation not already present
-        if (organisationMapper.findByFullName(input.getCompanyName()) != null) {
+        //company not already present
+        if (companyMapper.findByFullName(input.getCompanyName()) != null) {
             throw new InvalidInputException("Company already in-use.");
         }
     }
@@ -120,7 +122,7 @@ public class ClientOnboardingService {
         }
 
         dataStore.hardDeleteBy(IClientMapper.class, "deleteById", clientId);
-        dataStore.hardDeleteBy(IOrganisationMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(ICompanyMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IDepartmentMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IEmployeeMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
@@ -135,12 +137,12 @@ public class ClientOnboardingService {
             return NO_CLIENT_INFO;
         }
 
-        Organisation org = organisationMapper.findByClientId(c.getId());
+        Company co = companyMapper.findByClientId(c.getId());
         return ClientSummary.builder()
                 .clientPublicId(c.getPublicId())
                 .fullContactName(c.getClientNameDetails().fullName())
                 .emailAddress(c.getClientContactDetails().getEmail())
-                .companyName(Optional.ofNullable(org).map(Organisation::getFullName).orElse("<No company registered>"))
+                .companyName(Optional.ofNullable(co).map(Company::getFullName).orElse("<No company registered>"))
                 .contractType(c.getClientContract().getClientContractType().name())
                 .contractStatus(createStatus(c))
                 .build();
@@ -183,15 +185,17 @@ public class ClientOnboardingService {
                 input.getTelephone());
         dataStore.save(IClientMapper.class, client);
 
-        //2. Create Organisation
-        Organisation org = Organisation.builder()
+        //2. Create Company
+        Company co = Company.builder()
                 .fullName(input.getCompanyName())
+                .tradingName(input.getCompanyName())
+                .registeredName(input.getCompanyName())
                 .client(client)
                 .deleted(false)
                 .updatedBy(-1)
                 .updatedTime(LocalDateTime.now())
                 .build();
-        dataStore.save(IOrganisationMapper.class, org);
+        dataStore.save(ICompanyMapper.class, co);
 
         //3. Create Employee
         Employee employee = Employee.createOwner(
@@ -201,7 +205,7 @@ public class ClientOnboardingService {
                 input.getEmailAddress(),
                 input.getTelephone(),
                 client,
-                org);
+                co);
         dataStore.save(IEmployeeMapper.class, employee);
 
         //4. Create User (go through user service to encode pwd)
@@ -210,7 +214,7 @@ public class ClientOnboardingService {
                 input.getPassword(),
                 null,
                 client,
-                org,
+                co,
                 employee);
 
 

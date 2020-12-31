@@ -3,7 +3,7 @@ package co.hrsquare.bindad.model;
 public enum AddressType {
 
     CLIENT,
-    ORGANISATION,
+    COMPANY,
     EMPLOYEE_HOME,
     EMPLOYEE_BANK,
     EMPLOYEE_EMERGENCY_CONTACT,

@@ -1,12 +1,12 @@
 package co.hrsquare.bindad.controller.input.patch;
 
-import jdk.nashorn.internal.ir.annotations.Ignore;
 import lombok.Data;
 import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.Test;
+
 import java.util.Arrays;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.junit.jupiter.api.Assertions.assertEquals;
 
 class ObjectPatchTest {
 

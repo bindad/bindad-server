@@ -1,9 +1,8 @@
 package co.hrsquare.bindad.model;
 
-import co.hrsquare.bindad.model.AddressType;
 import co.hrsquare.bindad.model.client.Client;
 import co.hrsquare.bindad.model.employee.Employee;
-import co.hrsquare.bindad.model.organisation.Organisation;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -25,7 +24,7 @@ public class Address {
     private String postCode;
 
     private Client client;
-    private Organisation organisation;
+    private Company company;
     private Employee employee;
 
 }

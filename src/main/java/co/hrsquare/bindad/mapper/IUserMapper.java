@@ -9,14 +9,14 @@ import java.time.LocalDateTime;
 public interface IUserMapper {
 
     @Insert("<script>" +
-                "insert into tbl_user (client_id, organisation_id, employee_id, username, password, authorities, is_deleted, updated_by, updated_time) " +
+                "insert into tbl_user (client_id, company_id, employee_id, username, password, authorities, is_deleted, updated_by, updated_time) " +
                 "select " +
                         "<choose> " +
                             "<when test=\"client != null\"> #{client.id}, </when>" +
                             "<otherwise>null, </otherwise>" +
                         "</choose>" +
                         "<choose> " +
-                            "<when test=\"organisation != null\"> #{organisation.id}, </when>" +
+                            "<when test=\"company != null\"> #{company.id}, </when>" +
                             "<otherwise>null, </otherwise>" +
                         "</choose>" +
                         "<choose> " +
@@ -27,11 +27,11 @@ public interface IUserMapper {
             "</script>")
     void insert(User user);
 
-    @Select("select id, client_id, organisation_id, employee_id, username, password, authorities from tbl_user " +
+    @Select("select id, client_id, company_id, employee_id, username, password, authorities from tbl_user " +
             "where username=#{username} ")
     @Results({
             @Result(property = "client_id", column = "client.id"),
-            @Result(property = "organisation_id", column = "organisation.id"),
+            @Result(property = "company_id", column = "company.id"),
             @Result(property = "employee_id", column = "employee.id")
     })
     User findByUsername(String username);
