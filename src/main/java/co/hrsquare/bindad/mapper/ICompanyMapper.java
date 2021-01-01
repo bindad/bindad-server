@@ -66,7 +66,7 @@ public interface ICompanyMapper {
             "#{adminNameDetails.lastName}, " +
             "#{adminContactDetails.email}, " +
             "#{adminContactDetails.telephone}, " +
-            "#{adminContactDetails.TelephoneExt}, " +
+            "#{adminContactDetails.telephoneExt}, " +
             "#{adminContactDetails.mobile}, " +
             "#{financeSameAsAdmin}, " +
             "#{financeNameDetails.title.name}, " +
@@ -76,7 +76,7 @@ public interface ICompanyMapper {
             "#{financeNameDetails.lastName}, " +
             "#{financeContactDetails.email}, " +
             "#{financeContactDetails.telephone}, " +
-            "#{financeContactDetails.TelephoneExt}, " +
+            "#{financeContactDetails.telephoneExt}, " +
             "#{financeContactDetails.mobile}, " +
             "#{primaryAddress.id}, " +
             "#{additionalAddress1.id}, " +
@@ -185,6 +185,12 @@ public interface ICompanyMapper {
             "</script>")
     void deleteByClientId(Long clientId);
 
+    @Delete("<script>" +
+                "delete from tbl_company " +
+                "where id = #{id}; " +
+            "</script>")
+    void deleteById(Long id);
+
     @Select("select " +
             "id, " +
             "client_id, " +
@@ -271,4 +277,16 @@ public interface ICompanyMapper {
             @Result(column = "updated_time", property = "updatedTime")
     })
     Company findByClientId(long clientId);
+
+    @Update("<script>" +
+                "update tbl_company " +
+                "set primary_address_id = #{primaryAddress.id} " +
+                "<choose><when test=\" additionalAddress1 != null \"> , other_1_address_id = #{additionalAddress1.id} </when></choose>" +
+                "<choose><when test=\" additionalAddress2 != null \"> , other_2_address_id = #{additionalAddress2.id} </when></choose>" +
+                "<choose><when test=\" additionalAddress3 != null \"> , other_3_address_id = #{additionalAddress3.id} </when></choose>" +
+                "<choose><when test=\" additionalAddress4 != null \"> , other_4_address_id = #{additionalAddress4.id} </when></choose>" +
+                "<choose><when test=\" additionalAddress5 != null \"> , other_5_address_id = #{additionalAddress5.id} </when></choose>" +
+            "</script>"
+    )
+    void updateAddresses(Company co);
 }

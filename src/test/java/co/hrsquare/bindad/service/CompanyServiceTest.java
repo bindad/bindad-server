@@ -1,9 +1,8 @@
 package co.hrsquare.bindad.service;
 
-import co.hrsquare.bindad.controller.input.ClientFullSignUpInput;
-import co.hrsquare.bindad.controller.input.DepartmentInput;
-import co.hrsquare.bindad.controller.input.DepartmentsInput;
+import co.hrsquare.bindad.controller.input.*;
 import co.hrsquare.bindad.controller.output.ClientSummary;
+import co.hrsquare.bindad.model.employee.Title;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -26,6 +25,7 @@ class CompanyServiceTest {
     public void testSignUpForDemo() {
         clientOnboardingService.removeAllClientData("aseem.ruhela@myemail.com");
 
+        //1. create account
         ClientFullSignUpInput fullInput = new ClientFullSignUpInput();
         fullInput.setTitle("Mr");
         fullInput.setFirstName("Aseem");
@@ -42,6 +42,8 @@ class CompanyServiceTest {
         ClientSummary liveClientSummary = clientOnboardingService.getClientSummary(liveClientId);
         System.out.println(liveClientSummary);
 
+
+        //2. update details
         DepartmentInput legal = DepartmentInput.builder().fullName("Legal").build();
         DepartmentInput hr = DepartmentInput.builder().fullName("Human Resources").publicId("HR").build();
         DepartmentInput ops = DepartmentInput.builder().fullName("Operations").publicId("Ops").build();
@@ -50,9 +52,46 @@ class CompanyServiceTest {
                 .coFullName(liveClientSummary.getCompanyName())
                 .build();
 
-        companyService.createOrUpdateDepartments(departmentsInput);
+        FullNameDetailsInput adminNameDetails = FullNameDetailsInput.builder()
+                .title(Title.Mr)
+                .firstName("Aseem")
+                .lastName("Ruhela")
+                .build();
 
-//        clientOnboardingService.removeAllClientData("aseem.ruhela@myemail.com");
+        EmailTelephoneInput adminContactDetails = EmailTelephoneInput.builder()
+                .email("aseem.ruhela@myemail.com")
+                .telephone("+1 123 456 789")
+                .build();
+
+        AddressInput primaryAddress = AddressInput.builder()
+                .line1("32 Binary Street")
+                .town("London")
+                .country("UK")
+                .postCode("UK1 TW2")
+                .build();
+
+        AddressInput addAddress1 = AddressInput.builder()
+                .line1("1 Add Street")
+                .town("London")
+                .country("UK")
+                .postCode("UK1 TW3")
+                .build();
+
+        CompanyInput companyInput = CompanyInput.builder()
+                .tradingName("Med Tech Inc.")
+                .registeredName("Med Tech Inc.")
+                .website("http://www.medtech.com")
+                .contactTelephone("+1 123 456 789")
+                .partnership(false)
+                .adminNameDetails(adminNameDetails)
+                .adminContactDetails(adminContactDetails)
+                .financeSameAsAdmin(true)
+                .departmentsInput(departmentsInput)
+                .primaryAddress(primaryAddress)
+                .additionalAddress1(addAddress1)
+                .build();
+
+        companyService.editCompanyDetails(companyInput);
     }
 
 

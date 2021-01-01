@@ -529,7 +529,6 @@ create table tbl_address (
     town varchar(255) null,
     country varchar(255) null,
     post_code varchar(32) null,
-    is_primary boolean null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
