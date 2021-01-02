@@ -22,7 +22,7 @@ class CompanyServiceTest {
 
 
     @Test
-    public void testSignUpForDemo() {
+    public void testCompanyDetails() {
         clientOnboardingService.removeAllClientData("aseem.ruhela@myemail.com");
 
         //1. create account

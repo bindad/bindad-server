@@ -126,9 +126,9 @@ create table tbl_company_payroll (
     client_id bigint not null,
     company_id bigint not null,
 
-    pay_frequency_id bigint null,
+    pay_frequency varchar(32) null,
     /* Monthly */
-    monthly_pay_period_id bigint null,
+    monthly_pay_period varchar(32) null,
     /* Specify Monthly period */
     monthly_pay_custom_period_start_date int null,
     /* Monthly Pay Date Option1 */
@@ -147,7 +147,7 @@ create table tbl_company_payroll (
     monthly_pay_date_specific_weekday_bring_forward_weekend boolean null,
 
     /* Weekly */
-    weekly_pay_period_id bigint null,
+    weekly_pay_period varchar(32) null,
     weekly_pay_weekly_pay_day varchar(10) null,
     weekly_pay_weekly_pay_day_current_or_following_week boolean null,
     weekly_pay_weekly_pay_day_bring_forward_weekend boolean null,
@@ -180,14 +180,13 @@ create table tbl_company_payroll (
     small_employer_relief boolean null,
     payroll_giving_reference varchar(64) null,
     company_payroll_contact_id bigint null,
-    payroll_service_id bigint null,
+    payroll_service_type_id bigint null,
+    payroll_service_name varchar(64) null,
+    payroll_service_contact varchar(64) null,
+    payroll_service_telephone varchar(64) null,
+    payroll_service_email varchar(64) null,
 
-    company_pension_id bigint null,
-    add1_company_pension_id bigint null,
-    add2_company_pension_id bigint null,
-    add3_company_pension_id bigint null,
-    add4_company_pension_id bigint null,
-    add5_company_pension_id bigint null,
+    company_pension_staging_corporation_date date null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
@@ -203,7 +202,6 @@ create table tbl_company_pension_scheme (
     client_id bigint not null,
     company_id bigint not null,
 
-    staging_corporation_date date null,
     scheme_name varchar(64) not null,
     provider varchar(64) not null,
     scheme_reference varchar(64) null,
@@ -220,6 +218,7 @@ create table tbl_company_pension_scheme (
     auto_enrollment_compatible_delay_start_always boolean null,
     auto_enrollment_compatible_delay_start_per_employee boolean null,
     address_id bigint null,
+    is_default boolean null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
@@ -252,47 +251,6 @@ create table tbl_company_benefit_standard (
 
     name varchar(32) null,
     salary_sacrifice boolean null,
-
-    is_deleted boolean not null,
-    updated_by bigint not null,
-    updated_time datetime not null,
-    unique(name),
-    primary key (id)
-);
-
-drop table if exists tbl_pay_frequency;
-
-create table tbl_pay_frequency (
-	id bigint not null auto_increment,
-
-    name varchar(32) null,
-
-    is_deleted boolean not null,
-    updated_by bigint not null,
-    updated_time datetime not null,
-    primary key (id)
-);
-
-drop table if exists tbl_monthly_pay_period;
-
-create table tbl_monthly_pay_period (
-	id bigint not null auto_increment,
-
-    name varchar(64) null,
-
-    is_deleted boolean not null,
-    updated_by bigint not null,
-    updated_time datetime not null,
-    unique(name),
-    primary key (id)
-);
-
-drop table if exists tbl_weekly_pay_period;
-
-create table tbl_weekly_pay_period (
-	id bigint not null auto_increment,
-
-    name varchar(32) null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
@@ -398,6 +356,8 @@ create table tbl_employee (
 	id bigint not null auto_increment,
     client_id bigint not null,
     company_id bigint not null,
+
+    internal_id varchar(128) null,
 
     title varchar(10) null,
     first_name varchar(32) null,

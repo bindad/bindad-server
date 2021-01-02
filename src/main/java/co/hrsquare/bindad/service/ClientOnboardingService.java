@@ -8,7 +8,7 @@ import co.hrsquare.bindad.mapper.*;
 import co.hrsquare.bindad.model.client.Client;
 import co.hrsquare.bindad.model.client.ClientContractType;
 import co.hrsquare.bindad.model.client.ContractStatus;
-import co.hrsquare.bindad.model.employee.EmailTelephone;
+import co.hrsquare.bindad.model.EmailTelephone;
 import co.hrsquare.bindad.model.employee.Employee;
 import co.hrsquare.bindad.model.company.Company;
 import lombok.extern.slf4j.Slf4j;
@@ -124,6 +124,8 @@ public class ClientOnboardingService {
         dataStore.hardDeleteBy(IClientMapper.class, "deleteById", clientId);
         dataStore.hardDeleteBy(ICompanyMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IDepartmentMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(IAddressMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(ICompanyPayrollMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IEmployeeMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
 

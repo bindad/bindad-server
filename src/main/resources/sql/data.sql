@@ -126,22 +126,6 @@ insert into tbl_company_benefit_standard (name, salary_sacrifice, is_deleted, up
 select 'Workplace Nursery', 1, 0, -1, now()
 ;
 
-truncate table tbl_pay_frequency;
-
-/* Pay Frequency Types */
-insert into tbl_pay_frequency (name, is_deleted, updated_by, updated_time)
-select 'Monthly', 0, -1, now()
-;
-insert into tbl_pay_frequency (name, is_deleted, updated_by, updated_time)
-select 'Weekly', 0, -1, now()
-;
-insert into tbl_pay_frequency (name, is_deleted, updated_by, updated_time)
-select '2-Weekly', 0, -1, now()
-;
-insert into tbl_pay_frequency (name, is_deleted, updated_by, updated_time)
-select '4-Weekly', 0, -1, now()
-;
-
 truncate table tbl_monthly_pay_period;
 
 /* Monthly Pay Period */

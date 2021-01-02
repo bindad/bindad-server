@@ -219,4 +219,8 @@ public interface IEmployeeMapper {
             "</script>")
     void deleteByClientId(Long clientId);
 
+    @Select("select id " +
+            "from tbl_employee " +
+            "where internal_id = #{uuid}")
+    Long findIdByUuid(String uuid);
 }

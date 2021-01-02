@@ -1,4 +1,4 @@
-package co.hrsquare.bindad.model.employee;
+package co.hrsquare.bindad.model;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;

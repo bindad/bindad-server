@@ -1,7 +1,7 @@
 package co.hrsquare.bindad.model.client;
 
-import co.hrsquare.bindad.model.employee.EmailTelephone;
-import co.hrsquare.bindad.model.employee.FullNameDetails;
+import co.hrsquare.bindad.model.EmailTelephone;
+import co.hrsquare.bindad.model.FullNameDetails;
 import co.hrsquare.bindad.model.employee.Title;
 import lombok.AllArgsConstructor;
 import lombok.Builder;

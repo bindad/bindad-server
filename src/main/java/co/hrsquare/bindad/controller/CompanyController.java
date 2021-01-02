@@ -1,9 +1,12 @@
 package co.hrsquare.bindad.controller;
 
 import co.hrsquare.bindad.controller.input.CompanyInput;
+import co.hrsquare.bindad.controller.input.CompanyPayrollInput;
 import co.hrsquare.bindad.controller.input.DepartmentsInput;
+import co.hrsquare.bindad.service.CompanyPayrollService;
 import co.hrsquare.bindad.service.CompanyService;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.util.CollectionUtils;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
@@ -14,16 +17,19 @@ import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
 
 @RestController
 @RequestMapping(
-        value = "/co",
+        value = "/company",
         headers = {"Accept=application/json"},
         produces = {APPLICATION_JSON_VALUE}
 )
 @Slf4j
 public class CompanyController {
     private final CompanyService companyService;
+    private final CompanyPayrollService companyPayrollService;
 
-    public CompanyController(CompanyService companyService) {
+    public CompanyController(final CompanyService companyService,
+                             final CompanyPayrollService companyPayrollService) {
         this.companyService = companyService;
+        this.companyPayrollService = companyPayrollService;
     }
 
     @PostMapping("/editCompanyDetails")
@@ -65,6 +71,32 @@ public class CompanyController {
         Objects.requireNonNull(input);
         Objects.requireNonNull(input.getCoFullName());
         Objects.requireNonNull(input.getDepartments());
+    }
+
+    @PostMapping("/editPayroll")
+    public String editCompanyPayroll(CompanyPayrollInput input) {
+        log.info("Handling editCompanyPayroll request for {}", input);
+        validate(input);
+
+        String res = companyPayrollService.editPayroll(input);
+
+        log.info("DONE Handling editCompanyPayroll request for {}", input);
+        return res;
+    }
+
+    private void validate(CompanyPayrollInput input) {
+        Objects.requireNonNull(input.getCompanyFullName());
+        if (input.getPensionSchemes() != null && !CollectionUtils.isEmpty(input.getPensionSchemes().getPensionSchemeInputs())) {
+            if (input.getPensionSchemes().getCompanyFullName() == null) {
+                input.getPensionSchemes().setCompanyFullName(input.getCompanyFullName());
+            }
+
+            input.getPensionSchemes().getPensionSchemeInputs().forEach(p -> {
+                Objects.requireNonNull(p.getName());
+                Objects.requireNonNull(p.getProvider());
+            });
+        }
+
     }
 
 
