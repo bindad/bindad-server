@@ -1,10 +1,8 @@
 package co.hrsquare.bindad.service;
 
-import co.hrsquare.bindad.controller.input.ClientFullSignUpInput;
-import co.hrsquare.bindad.controller.input.CompanyPayrollInput;
-import co.hrsquare.bindad.controller.input.PensionSchemeInput;
-import co.hrsquare.bindad.controller.input.PensionSchemesInput;
+import co.hrsquare.bindad.controller.input.*;
 import co.hrsquare.bindad.controller.output.ClientSummary;
+import co.hrsquare.bindad.model.company.payroll.CompanyBenefit;
 import co.hrsquare.bindad.model.company.payroll.PensionScheme;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
@@ -50,6 +48,11 @@ class CompanyPayrollServiceTest {
                 .provider("Axa Financial Services")
                 .build();
 
+        CompanyBenefitInput companyBenefit = CompanyBenefitInput.builder()
+                .name("Cycle To Work")
+                .salarySacrifice(false)
+                .build();
+
         CompanyPayrollInput input = CompanyPayrollInput.builder()
                 .companyFullName("Med Tech Inc.")
                 .payFrequency("MONTHLY")
@@ -59,6 +62,9 @@ class CompanyPayrollServiceTest {
                 .paymentMethod("Cash")
                 .pensionSchemes(PensionSchemesInput.builder()
                         .pensionSchemeInputs(Collections.singletonList(pensionScheme))
+                        .build())
+                .companyBenefits(CompanyBenefitsInput.builder()
+                        .companyBenefitInputs(Collections.singletonList(companyBenefit))
                         .build())
                 .build();
 

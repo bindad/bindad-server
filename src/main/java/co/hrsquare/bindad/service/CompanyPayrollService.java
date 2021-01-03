@@ -9,6 +9,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
+import org.springframework.util.CollectionUtils;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
@@ -32,6 +33,7 @@ public class CompanyPayrollService {
     private final IPensionTaxationTypeMapper pensionTaxationTypeMapper;
     private final IPensionSchemeMapper pensionSchemeMapper;
     private final IAddressMapper addressMapper;
+    private final ICompanyBenefitMapper companyBenefitMapper;
 
     public CompanyPayrollService(ICompanyMapper companyMapper,
                                  IPayrollPaymentMethodMapper payrollPaymentMethodMapper,
@@ -42,7 +44,8 @@ public class CompanyPayrollService {
                                  IPensionContributionTypeMapper pensionContributionTypeMapper,
                                  IPensionTaxationTypeMapper pensionTaxationTypeMapper,
                                  IPensionSchemeMapper pensionSchemeMapper,
-                                 IAddressMapper addressMapper) {
+                                 IAddressMapper addressMapper,
+                                 ICompanyBenefitMapper companyBenefitMapper) {
         this.companyMapper = companyMapper;
         this.payrollPaymentMethodMapper = payrollPaymentMethodMapper;
         this.rtiSenderTypeMapper = rtiSenderTypeMapper;
@@ -53,6 +56,7 @@ public class CompanyPayrollService {
         this.pensionTaxationTypeMapper = pensionTaxationTypeMapper;
         this.pensionSchemeMapper = pensionSchemeMapper;
         this.addressMapper = addressMapper;
+        this.companyBenefitMapper = companyBenefitMapper;
     }
 
     @Transactional
@@ -81,8 +85,26 @@ public class CompanyPayrollService {
         });
 
         //benefits
+        companyBenefitMapper.deleteByClientAndCompanyId(co.getClient().getId(), co.getId());
+        List<CompanyBenefit> companyBenefits = buildCompanyBenefitFromInput(input, co);
+        companyBenefits.forEach(cb -> dataStore.save(ICompanyBenefitMapper.class, cb));
 
         return "SUCCESS";
+    }
+
+    private List<CompanyBenefit> buildCompanyBenefitFromInput(CompanyPayrollInput input, Company co) {
+        if (input.getCompanyBenefits() == null || CollectionUtils.isEmpty(input.getCompanyBenefits().getCompanyBenefitInputs())) {
+            return Collections.emptyList();
+        }
+        return input.getCompanyBenefits().getCompanyBenefitInputs().stream().map(cb -> CompanyBenefit.builder()
+                .name(cb.getName())
+                .salarySacrifice(cb.isSalarySacrifice())
+                .client(co.getClient())
+                .company(co)
+                .deleted(false)
+                .updatedBy(-1)
+                .updatedTime(LocalDateTime.now())
+                .build()).collect(Collectors.toList());
     }
 
     private List<PensionScheme> buildPensionSchemesFromInput(CompanyPayrollInput input, Company co) {
