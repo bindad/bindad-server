@@ -1,7 +1,6 @@
 package co.hrsquare.bindad.mapper;
 
 import co.hrsquare.bindad.model.client.Client;
-import co.hrsquare.bindad.model.client.ClientContractType;
 import org.apache.ibatis.annotations.*;
 import org.apache.ibatis.type.EnumTypeHandler;
 

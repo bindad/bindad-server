@@ -1,7 +1,7 @@
 package co.hrsquare.bindad.model.employee;
 
 import co.hrsquare.bindad.model.client.Client;
-import co.hrsquare.bindad.model.organisation.Organisation;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
@@ -20,7 +20,7 @@ public class EmployeeWeek {
     private HoursForDay saturday;
     private HoursForDay sunday;
 
-    private Organisation organisation;
+    private Company company;
     private Client client;
     private Employee employee;
 

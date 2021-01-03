@@ -1,16 +1,16 @@
 package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
-import co.hrsquare.bindad.controller.input.ClientUpgradeInput;
+import co.hrsquare.bindad.controller.input.ClientFullSignUpInput;
 import co.hrsquare.bindad.controller.output.ClientSummary;
 import co.hrsquare.bindad.exception.InvalidInputException;
 import co.hrsquare.bindad.mapper.*;
 import co.hrsquare.bindad.model.client.Client;
 import co.hrsquare.bindad.model.client.ClientContractType;
 import co.hrsquare.bindad.model.client.ContractStatus;
-import co.hrsquare.bindad.model.employee.EmailTelephone;
+import co.hrsquare.bindad.model.EmailTelephone;
 import co.hrsquare.bindad.model.employee.Employee;
-import co.hrsquare.bindad.model.organisation.Organisation;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Component;
 import org.springframework.transaction.annotation.Transactional;
@@ -28,18 +28,18 @@ public class ClientOnboardingService {
 
     private final UserService userService;
     private final DataStore dataStore;
-    private final IOrganisationMapper organisationMapper;
+    private final ICompanyMapper companyMapper;
     private final IClientMapper clientMapper;
     private final IEmployeeMapper employeeMapper;
 
     public ClientOnboardingService(final UserService userService,
                                    final DataStore dataStore,
-                                   final IOrganisationMapper organisationMapper,
+                                   final ICompanyMapper companyMapper,
                                    final IClientMapper clientMapper,
                                    final IEmployeeMapper employeeMapper) {
         this.userService = Objects.requireNonNull(userService);
         this.dataStore = Objects.requireNonNull(dataStore);
-        this.organisationMapper = Objects.requireNonNull(organisationMapper);
+        this.companyMapper = Objects.requireNonNull(companyMapper);
         this.clientMapper = Objects.requireNonNull(clientMapper);
         this.employeeMapper = Objects.requireNonNull(employeeMapper);
     }
@@ -63,15 +63,17 @@ public class ClientOnboardingService {
                 input.getTelephone());
         dataStore.save(IClientMapper.class, client);
 
-        //2. Create Organisation
-        Organisation org = Organisation.builder()
+        //2. Create company
+        Company co = Company.builder()
                 .fullName(input.getCompanyName())
+                .tradingName(input.getCompanyName())
+                .registeredName(input.getCompanyName())
                 .client(client)
                 .deleted(false)
                 .updatedBy(-1)
                 .updatedTime(LocalDateTime.now())
                 .build();
-        dataStore.save(IOrganisationMapper.class, org);
+        dataStore.save(ICompanyMapper.class, co);
 
         //3. Create Employee
         Employee employee = Employee.createOwner(
@@ -81,7 +83,7 @@ public class ClientOnboardingService {
                 input.getEmailAddress(),
                 input.getTelephone(),
                 client,
-                org);
+                co);
         dataStore.save(IEmployeeMapper.class, employee);
 
         //4. Create User (go through user service to encode pwd)
@@ -90,7 +92,7 @@ public class ClientOnboardingService {
                 input.getPassword(),
                 null,
                 client,
-                org,
+                co,
                 employee);
 
         return client.getPublicId();
@@ -102,14 +104,14 @@ public class ClientOnboardingService {
             throw new InvalidInputException("Email already in-use.");
         }
 
-        //organisation not already present
-        if (organisationMapper.findByFullName(input.getCompanyName()) != null) {
+        //company not already present
+        if (companyMapper.findByFullName(input.getCompanyName()) != null) {
             throw new InvalidInputException("Company already in-use.");
         }
     }
 
     @Transactional
-    public String removeAllClientData(String clientEmail, boolean keepUsers) {
+    public String removeAllClientData(String clientEmail) {
         EmailTelephone emailTelephone = EmailTelephone.builder().email(clientEmail).build();
         Client client = Client.builder().clientContactDetails(emailTelephone).build();
 
@@ -120,11 +122,14 @@ public class ClientOnboardingService {
         }
 
         dataStore.hardDeleteBy(IClientMapper.class, "deleteById", clientId);
-        dataStore.hardDeleteBy(IOrganisationMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(ICompanyMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(IDepartmentMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(IAddressMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(ICompanyPayrollMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(IPensionSchemeMapper.class, "deleteByClientId", clientId);
+        dataStore.hardDeleteBy(ICompanyBenefitMapper.class, "deleteByClientId", clientId);
         dataStore.hardDeleteBy(IEmployeeMapper.class, "deleteByClientId", clientId);
-        if (!keepUsers) {
-            dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
-        }
+        dataStore.hardDeleteBy(IUserMapper.class, "deleteByClientId", clientId);
 
         return SUCCESS;
     }
@@ -136,12 +141,12 @@ public class ClientOnboardingService {
             return NO_CLIENT_INFO;
         }
 
-        Organisation org = organisationMapper.findByClientId(c.getId());
+        Company co = companyMapper.findByClientId(c.getId());
         return ClientSummary.builder()
                 .clientPublicId(c.getPublicId())
                 .fullContactName(c.getClientNameDetails().fullName())
                 .emailAddress(c.getClientContactDetails().getEmail())
-                .companyName(Optional.ofNullable(org).map(Organisation::getFullName).orElse("<No company registered>"))
+                .companyName(Optional.ofNullable(co).map(Company::getFullName).orElse("<No company registered>"))
                 .contractType(c.getClientContract().getClientContractType().name())
                 .contractStatus(createStatus(c))
                 .build();
@@ -160,50 +165,63 @@ public class ClientOnboardingService {
     }
 
     @Transactional
-    public String upgradeClient(ClientUpgradeInput input) {
-        Client queryClient;
-        if (input.getClientEmail() != null) {
-            EmailTelephone emailTelephone = EmailTelephone.builder().email(input.getClientEmail()).build();
-            queryClient = Client.builder().clientContactDetails(emailTelephone).build();
-        } else {
-            queryClient = Client.builder().publicId(input.getClientPublicId()).build();
+    public String newClient(ClientFullSignUpInput input) {
+        String demoEmailAddress = input.getDemoEmailAddress();
+        if (demoEmailAddress != null) {
+            EmailTelephone emailTelephone = EmailTelephone.builder().email(demoEmailAddress).build();
+            Client queryClient = Client.builder().clientContactDetails(emailTelephone).build();
+
+            Client client = clientMapper.findBy(queryClient);
+            if (client == null) {
+                log.warn("Could not find client data for demo: {}", demoEmailAddress);
+            } else {
+                //remove all demo account data (any entered employees, other data would be removed!)
+                removeAllClientData(client.getClientContactDetails().getEmail());
+            }
         }
 
-        Client client = clientMapper.findBy(queryClient);
-        if (client == null) {
-            return "Cannot find client";
-        }
+        //1. Create Client
+        Client client = Client.createNew(
+                input.getTitle(),
+                input.getFirstName(),
+                input.getLastName(),
+                input.getEmailAddress(),
+                input.getTelephone());
+        dataStore.save(IClientMapper.class, client);
 
-        //remove all demo account data (any entered employees, other data would be removed!)
-        removeAllClientData(client.getClientContactDetails().getEmail(), true);
-
-        //1. create new upgraded client
-        Client upgradedClient = Client.createNewUpgradedFromDemo(client, input.getContractStartDate());
-        dataStore.save(IClientMapper.class, upgradedClient);
-
-        //2. Create Organisation
-        Organisation org = Organisation.builder()
+        //2. Create Company
+        Company co = Company.builder()
                 .fullName(input.getCompanyName())
-                .client(upgradedClient)
+                .tradingName(input.getCompanyName())
+                .registeredName(input.getCompanyName())
+                .client(client)
                 .deleted(false)
                 .updatedBy(-1)
                 .updatedTime(LocalDateTime.now())
                 .build();
-        dataStore.save(IOrganisationMapper.class, org);
+        dataStore.save(ICompanyMapper.class, co);
 
         //3. Create Employee
         Employee employee = Employee.createOwner(
-                upgradedClient.getClientNameDetails().getTitle().name(),
-                upgradedClient.getClientNameDetails().getFirstName(),
-                upgradedClient.getClientNameDetails().getLastName(),
-                upgradedClient.getClientContactDetails().getEmail(),
-                upgradedClient.getClientContactDetails().getTelephone(),
-                upgradedClient,
-                org);
+                input.getTitle(),
+                input.getFirstName(),
+                input.getLastName(),
+                input.getEmailAddress(),
+                input.getTelephone(),
+                client,
+                co);
         dataStore.save(IEmployeeMapper.class, employee);
 
-        //4. we already kept the users to avoid people to re-sign-up.
+        //4. Create User (go through user service to encode pwd)
+        userService.createNewClientUser(
+                input.getEmailAddress(),
+                input.getPassword(),
+                null,
+                client,
+                co,
+                employee);
 
-        return upgradedClient.getPublicId();
+
+        return client.getPublicId();
     }
 }

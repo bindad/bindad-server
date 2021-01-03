@@ -1,9 +1,9 @@
-drop table tbl_user;
+drop table if exists tbl_user;
 
 create table tbl_user (
 	id bigint not null auto_increment,
 	client_id bigint null,
-	organisation_id bigint null,
+	company_id bigint null,
 	employee_id bigint null,
     username varchar(255) not null,
     password varchar(255) not null,
@@ -15,7 +15,7 @@ create table tbl_user (
     primary key (id)
 );
 
-drop table tbl_client;
+drop table if exists tbl_client;
 
 create table tbl_client (
 	id bigint not null auto_increment,
@@ -45,7 +45,7 @@ create table tbl_client (
     primary key (id)
 );
 
-drop table tbl_client_bill;
+drop table if exists tbl_client_bill;
 
 create table tbl_client_bill (
 	id bigint not null auto_increment,
@@ -65,15 +65,51 @@ create table tbl_client_bill (
     primary key (id)
 );
 
-drop table tbl_organisation;
+drop table if exists tbl_company;
 
-create table tbl_organisation (
+create table tbl_company (
 	id bigint not null auto_increment,
     client_id bigint not null,
 
+    full_name varchar(255) not null,
     public_id varchar(32) null,
-    full_name varchar(255) null,
     short_name varchar(64) null,
+
+    trading_name varchar(255) not null,
+    registered_name varchar(255) not null,
+    website varchar(255) null,
+    contact_telephone varchar(32) null,
+    registered_charity_number varchar(32) null,
+    vat_number varchar(32) null,
+    is_partnership boolean null,
+
+    admin_title varchar(10) null,
+    admin_first_name varchar(32) null,
+    admin_known_as varchar(32) null,
+    admin_middle_initial varchar(5) null,
+    admin_last_name varchar(32) null,
+    admin_email varchar(255) null,
+    admin_telephone varchar(32) null,
+    admin_telephone_ext varchar(32) null,
+    admin_mobile varchar(32) null,
+
+    is_finance_same_as_admin boolean null,
+    finance_title varchar(10) null,
+    finance_first_name varchar(32) null,
+    finance_known_as varchar(32) null,
+    finance_middle_initial varchar(5) null,
+    finance_last_name varchar(32) null,
+    finance_email varchar(255) null,
+    finance_telephone varchar(32) null,
+    finance_telephone_ext varchar(32) null,
+    finance_mobile varchar(32) null,
+
+    primary_address_id bigint null,
+    other_1_address_id bigint null,
+    other_2_address_id bigint null,
+    other_3_address_id bigint null,
+    other_4_address_id bigint null,
+    other_5_address_id bigint null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
@@ -83,12 +119,208 @@ create table tbl_organisation (
     primary key (id)
 );
 
-drop table tbl_department;
+drop table if exists tbl_company_payroll;
+
+create table tbl_company_payroll (
+	id bigint not null auto_increment,
+    client_id bigint not null,
+    company_id bigint not null,
+
+    pay_frequency varchar(32) null,
+    /* Monthly */
+    monthly_pay_period varchar(32) null,
+    /* Specify Monthly period */
+    monthly_pay_custom_period_start_date int null,
+    /* Monthly Pay Date Option1 */
+    monthly_pay_date_last_working_day boolean null,
+
+    /* Monthly Pay Date Option2 */
+    monthly_pay_date_specific_date boolean null,
+    monthly_pay_date_specific_date_day int null,
+    monthly_pay_date_specific_date_current_or_following boolean null,
+    monthly_pay_date_specific_date_bring_forward_weekend boolean null,
+
+    /* Monthly Pay Date Option3 */
+    monthly_pay_date_specific_weekday boolean null,
+    monthly_pay_date_specific_weekday_date varchar(10) null,
+    monthly_pay_date_specific_weekday_day varchar(10) null,
+    monthly_pay_date_specific_weekday_bring_forward_weekend boolean null,
+
+    /* Weekly */
+    weekly_pay_period varchar(32) null,
+    weekly_pay_weekly_pay_day varchar(10) null,
+    weekly_pay_weekly_pay_day_current_or_following_week boolean null,
+    weekly_pay_weekly_pay_day_bring_forward_weekend boolean null,
+
+    /* 2-Weekly */
+    two_weekly_start_date_current_period date null,
+    two_weekly_pay_date_current_period date null,
+    two_weekly_pay_date_bring_forward_weekend boolean null,
+
+    /* 4-Weekly */
+    four_weekly_start_date_current_period date null,
+    four_weekly_pay_date_current_period date null,
+    four_weekly_pay_date_bring_forward_weekend boolean null,
+
+    authorisation_deadline_days int null,
+    authorisation_deadline_days_working_or_calendar boolean null,
+
+    payment_method_id bigint null,
+
+    /* PAYE Details */
+    paye_reference varchar(64) null,
+    accounting_office_reference varchar(64) null,
+    rti_sender_type_id bigint null,
+    rti_sender_id varchar(64) null,
+    rti_password varchar(64) null,
+    sautr varchar(64) null,
+    corporation_tax_reference varchar(64) null,
+    hmrc_office_name varchar(64) null,
+    hmrc_office_telephone varchar(64) null,
+    small_employer_relief boolean null,
+    payroll_giving_reference varchar(64) null,
+    company_payroll_contact_id bigint null,
+    payroll_service_type_id bigint null,
+    payroll_service_name varchar(64) null,
+    payroll_service_contact varchar(64) null,
+    payroll_service_telephone varchar(64) null,
+    payroll_service_email varchar(64) null,
+
+    company_pension_staging_corporation_date date null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(client_id, company_id),
+    primary key (id)
+);
+
+drop table if exists tbl_company_pension_scheme;
+
+create table tbl_company_pension_scheme (
+	id bigint not null auto_increment,
+    client_id bigint not null,
+    company_id bigint not null,
+
+    scheme_name varchar(64) not null,
+    provider varchar(64) not null,
+    scheme_reference varchar(64) null,
+    contribution_type_id bigint null,
+    contribution_thresholds_lower_annual double null,
+    contribution_thresholds_upper_annual double null,
+    salary_sacrifice_use_total_after_sacrifice_deducted boolean null,
+    employee_contribution_percentage double null,
+    employer_contribution_percentage double null,
+    employer_contribution_per_employee boolean null,
+    pension_taxation_id bigint null,
+    auto_enrollment_compatible boolean null,
+    auto_enrollment_compatible_delay_start_never boolean null,
+    auto_enrollment_compatible_delay_start_always boolean null,
+    auto_enrollment_compatible_delay_start_per_employee boolean null,
+    address_id bigint null,
+    is_default boolean null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(client_id, company_id, scheme_name),
+    primary key (id)
+);
+
+drop table if exists tbl_company_benefit;
+
+create table tbl_company_benefit (
+	id bigint not null auto_increment,
+    client_id bigint not null,
+    company_id bigint not null,
+
+    name varchar(32) null,
+    salary_sacrifice boolean null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(client_id, company_id, name),
+    primary key (id)
+);
+
+drop table if exists tbl_company_benefit_standard;
+
+create table tbl_company_benefit_standard (
+	id bigint not null auto_increment,
+
+    name varchar(32) null,
+    salary_sacrifice boolean null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(name),
+    primary key (id)
+);
+
+drop table if exists tbl_payroll_payment_method;
+
+create table tbl_payroll_payment_method (
+	id bigint not null auto_increment,
+
+    name varchar(32) null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(name),
+    primary key (id)
+);
+
+drop table if exists tbl_rti_sender_type;
+
+create table tbl_rti_sender_type (
+	id bigint not null auto_increment,
+
+    name varchar(32) null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(name),
+    primary key (id)
+);
+
+drop table if exists tbl_pension_contribution_type;
+
+create table tbl_pension_contribution_type (
+	id bigint not null auto_increment,
+
+    name varchar(64) null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(name),
+    primary key (id)
+);
+
+drop table if exists tbl_pension_taxation_type;
+
+create table tbl_pension_taxation_type (
+	id bigint not null auto_increment,
+
+    name varchar(32) null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(name),
+    primary key (id)
+);
+
+drop table if exists tbl_department;
 
 create table tbl_department (
 	id bigint not null auto_increment,
-    organisation_id bigint not null,
     client_id bigint not null,
+    company_id bigint not null,
 
     public_id varchar(32) null,
     full_name varchar(255) null,
@@ -97,16 +329,35 @@ create table tbl_department (
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(public_id),
+    unique(client_id, company_id, public_id),
+    unique(client_id, company_id, full_name),
     primary key (id)
 );
 
-drop table tbl_employee;
+drop table if exists tbl_department_standard;
+
+create table tbl_department_standard (
+	id bigint not null auto_increment,
+
+    public_id varchar(32) null,
+    full_name varchar(255) null,
+    short_name varchar(64) null,
+
+    is_deleted boolean not null,
+    updated_by bigint not null,
+    updated_time datetime not null,
+    unique(full_name),
+    primary key (id)
+);
+
+drop table if exists tbl_employee;
 
 create table tbl_employee (
 	id bigint not null auto_increment,
     client_id bigint not null,
-    organisation_id bigint not null,
+    company_id bigint not null,
+
+    internal_id varchar(128) null,
 
     title varchar(10) null,
     first_name varchar(32) null,
@@ -218,16 +469,16 @@ create table tbl_employee (
     updated_by bigint not null,
     updated_time datetime not null,
     unique(work_email),
-    unique(client_id, organisation_id),
+    unique(client_id, company_id),
     primary key (id)
 );
 
-drop table tbl_address;
+drop table if exists tbl_address;
 
 create table tbl_address (
 	id bigint not null auto_increment,
     client_id bigint not null,
-    organisation_id bigint null,
+    company_id bigint null,
     employee_id bigint null,
 
     address_type varchar(64) null,
@@ -238,21 +489,20 @@ create table tbl_address (
     town varchar(255) null,
     country varchar(255) null,
     post_code varchar(32) null,
-    is_primary boolean null,
 
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(client_id, organisation_id, employee_id),
+    unique(client_id, company_id, employee_id),
     primary key (id)
 );
 
-drop table tbl_week_hours;
+drop table if exists tbl_week_hours;
 
 create table tbl_week_hours (
 	id bigint not null auto_increment,
     client_id bigint not null,
-    organisation_id bigint null,
+    company_id bigint null,
     employee_id bigint null,
 
 	hours_type varchar(32) null,
@@ -269,11 +519,11 @@ create table tbl_week_hours (
     is_deleted boolean not null,
     updated_by bigint not null,
     updated_time datetime not null,
-    unique(client_id, organisation_id, employee_id),
+    unique(client_id, company_id, employee_id),
     primary key (id)
 );
 
-drop table tbl_nic_table_letter;
+drop table if exists tbl_nic_table_letter;
 
 create table tbl_nic_table_letter (
 	id bigint not null auto_increment,
@@ -288,7 +538,7 @@ create table tbl_nic_table_letter (
     primary key (id)
 );
 
-drop table tbl_p45_circumstances_at_start;
+drop table if exists tbl_p45_circumstances_at_start;
 
 create table tbl_p45_circumstances_at_start (
 	id bigint not null auto_increment,

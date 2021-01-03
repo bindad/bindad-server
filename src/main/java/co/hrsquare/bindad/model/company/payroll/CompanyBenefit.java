@@ -1,33 +1,27 @@
-package co.hrsquare.bindad.model.organisation;
+package co.hrsquare.bindad.model.company.payroll;
 
 import co.hrsquare.bindad.model.client.Client;
-import co.hrsquare.bindad.model.Address;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
-import java.util.List;
 
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class Organisation {
+public class CompanyBenefit {
 
-    //system id
     private long id;
 
-    private String shortName;
-    private String fullName;
-    private String publicId;
-    private Address primaryAddress;
-    private List<Address> allAddresses;
-
-    private List<Department> departments;
+    private String name;
+    private boolean salarySacrifice;
 
     private Client client;
+    private Company company;
 
     private boolean deleted;
     private long updatedBy;

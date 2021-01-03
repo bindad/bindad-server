@@ -1,13 +1,12 @@
 package co.hrsquare.bindad.controller;
 
 import co.hrsquare.bindad.controller.input.ClientDemoSignUpInput;
-import co.hrsquare.bindad.controller.input.ClientUpgradeInput;
+import co.hrsquare.bindad.controller.input.ClientFullSignUpInput;
 import co.hrsquare.bindad.controller.output.ClientSummary;
 import co.hrsquare.bindad.service.ClientOnboardingService;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.web.bind.annotation.*;
 
-import java.time.LocalDate;
 import java.util.Objects;
 
 import static org.springframework.http.MediaType.APPLICATION_JSON_VALUE;
@@ -60,27 +59,26 @@ public class ClientController {
         return summary;
     }
 
-    @PostMapping("/upgradeClient")
-    public String upgradeClient(ClientUpgradeInput input) {
-        log.info("Handling upgradeClient request for {}", input);
+    @PostMapping("/newClient")
+    public String newClient(ClientFullSignUpInput input) {
+        log.info("Handling newClient request for {}", input);
 
         validateInput(input);
-        String res = clientOnboardingService.upgradeClient(input);
+        String res = clientOnboardingService.newClient(input);
 
-        log.info("DONE Handling upgradeClient request for {}", input);
+        log.info("DONE Handling newClient request for {}", input);
         return res;
     }
 
-    private void validateInput(ClientUpgradeInput input) {
+    private void validateInput(ClientFullSignUpInput input) {
         Objects.requireNonNull(input);
-        if (input.getClientPublicId() == null && input.getClientEmail() == null) {
-            throw new IllegalArgumentException("Need either one of client public id or email");
-        }
-        Objects.requireNonNull(input.getContractStartDate());
-        if (!input.isForcePastContractStart() && input.getContractStartDate().isBefore(LocalDate.now())) {
-            throw new IllegalArgumentException("Contract start date in the past");
-        }
+        Objects.requireNonNull(input.getDemoEmailAddress());
+        Objects.requireNonNull(input.getFirstName());
+        Objects.requireNonNull(input.getLastName());
+        Objects.requireNonNull(input.getEmailAddress());
         Objects.requireNonNull(input.getCompanyName());
+        Objects.requireNonNull(input.getTelephone());
+        Objects.requireNonNull(input.getPassword());
     }
 
     @PostMapping("/removeAllClientData")
@@ -88,7 +86,7 @@ public class ClientController {
         log.info("Handling removeAllClientData request for {}", clientEmail);
         Objects.requireNonNull(clientEmail);
 
-        String res = clientOnboardingService.removeAllClientData(clientEmail, false);
+        String res = clientOnboardingService.removeAllClientData(clientEmail);
 
         log.info("DONE Handling removeAllClientData request for {}", clientEmail);
         return res;

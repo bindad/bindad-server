@@ -1,9 +1,8 @@
 package co.hrsquare.bindad.model.employee;
 
 import co.hrsquare.bindad.model.*;
-import co.hrsquare.bindad.model.auth.User;
 import co.hrsquare.bindad.model.client.Client;
-import co.hrsquare.bindad.model.organisation.Organisation;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -35,14 +34,14 @@ public class Employee implements ISystemUser {
     private SystemSettings systemSettings;
 
     private Client client;
-    private Organisation organisation;
+    private Company company;
 
     private boolean deleted;
     private long updatedBy;
     private LocalDateTime updatedTime;
 
     public static Employee createOwner(String title, String firstName, String lastName, String emailAddress,
-                                       String telephone, Client client, Organisation org) {
+                                       String telephone, Client client, Company org) {
 
         FullNameDetails fullNameDetails = FullNameDetails.builder()
                 .title(Title.valueOf(title))
@@ -60,7 +59,7 @@ public class Employee implements ISystemUser {
         Employee employee = new Employee();
         employee.setContactDetails(contactDetails);
         employee.setClient(client);
-        employee.setOrganisation(org);
+        employee.setCompany(org);
 
         employee.setDeleted(false);
         employee.setUpdatedBy(-1);

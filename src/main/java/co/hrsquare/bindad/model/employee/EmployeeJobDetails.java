@@ -1,6 +1,6 @@
 package co.hrsquare.bindad.model.employee;
 
-import co.hrsquare.bindad.model.organisation.Department;
+import co.hrsquare.bindad.model.company.Department;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 

@@ -12,7 +12,7 @@ public interface IEmployeeMapper {
     @Insert("<script>" +
             "insert into tbl_employee (" +
             "client_id, " +
-            "organisation_id, " +
+            "company_id, " +
             "title, " +
             "first_name, " +
             "known_as, " +
@@ -106,7 +106,7 @@ public interface IEmployeeMapper {
             "updated_time) " +
             "select " +
             "#{client.id}, " +
-            "#{organisation.id}, " +
+            "#{company.id}, " +
             "#{contactDetails.fullNameDetails.title.name}, " +
             "#{contactDetails.fullNameDetails.firstName}, " +
             "#{contactDetails.fullNameDetails.knownAs}, " +
@@ -219,4 +219,8 @@ public interface IEmployeeMapper {
             "</script>")
     void deleteByClientId(Long clientId);
 
+    @Select("select id " +
+            "from tbl_employee " +
+            "where internal_id = #{uuid}")
+    Long findIdByUuid(String uuid);
 }

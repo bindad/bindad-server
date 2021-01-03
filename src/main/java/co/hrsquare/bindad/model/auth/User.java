@@ -2,7 +2,7 @@ package co.hrsquare.bindad.model.auth;
 
 import co.hrsquare.bindad.model.client.Client;
 import co.hrsquare.bindad.model.employee.Employee;
-import co.hrsquare.bindad.model.organisation.Organisation;
+import co.hrsquare.bindad.model.company.Company;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -28,7 +28,7 @@ public class User {
     private LocalDateTime updatedTime;
 
     private Client client;
-    private Organisation organisation;
+    private Company company;
     private Employee employee;
 
     @Override

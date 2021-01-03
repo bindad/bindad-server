@@ -1,4 +1,4 @@
-package co.hrsquare.bindad.model.employee;
+package co.hrsquare.bindad.controller.input;
 
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -9,7 +9,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor
 @AllArgsConstructor
 @Builder
-public class EmailTelephone {
+public class EmailTelephoneInput {
 
     private String email;
     private String telephone;

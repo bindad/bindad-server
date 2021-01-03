@@ -1,11 +1,17 @@
-package co.hrsquare.bindad.model.organisation;
+package co.hrsquare.bindad.model.company;
 
 import co.hrsquare.bindad.model.client.Client;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.time.LocalDateTime;
+
 @Data
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Department {
 
     private long id;
@@ -14,7 +20,11 @@ public class Department {
     private String fullName;
     private String shortName;
 
-    private Organisation organisation;
+    private Company company;
     private Client client;
+
+    private boolean deleted;
+    private long updatedBy;
+    private LocalDateTime updatedTime;
 
 }
