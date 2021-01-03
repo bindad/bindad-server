@@ -1,11 +1,14 @@
 package co.hrsquare.bindad.mapper;
 
 import co.hrsquare.bindad.model.Address;
+import co.hrsquare.bindad.model.company.Company;
 import co.hrsquare.bindad.model.company.Department;
 import org.apache.ibatis.annotations.Delete;
 import org.apache.ibatis.annotations.Insert;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Select;
+
+import java.util.List;
 
 @Mapper
 public interface IAddressMapper {
@@ -68,5 +71,20 @@ public interface IAddressMapper {
             "where client_id = #{clientId} " +
             "and company_id = #{companyId}")
     void deleteByClientAndCompanyId(long clientId, long companyId);
+
+    @Delete("<script>" +
+                "delete from tbl_address " +
+                "where " +
+                    "<choose>" +
+                        "<when test=\"addressIds != null and addressIds.size > 0 \">" +
+                            "id in " +
+                            "<foreach item=\"item\" index=\"index\" collection=\"addressIds\" open=\"(\" separator=\",\" close=\")\" >" +
+                            " #{item} " +
+                            "</foreach>" +
+                        "</when>" +
+                        "<otherwise> 1 = 2 </otherwise>" +
+                    "</choose>" +
+            "</script>")
+    void deleteAll(List<Long> addressIds);
 
 }

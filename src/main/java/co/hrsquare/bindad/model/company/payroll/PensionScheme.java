@@ -27,6 +27,7 @@ public class PensionScheme {
     private PensionContributionType contributionType;
     private double contributionThresholdLower;
     private double contributionThresholdUpper;
+    private boolean salarySacrificeUseTotalAfterSacrificeDeducted;
     private double employeeContributionPercentage;
     private double employerContributionPercentage;
     private boolean employerContributionPerEmployee;

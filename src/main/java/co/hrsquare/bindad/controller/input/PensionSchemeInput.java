@@ -18,6 +18,7 @@ public class PensionSchemeInput {
     private String provider;
     private String schemeReference;
     private String contributionType;
+    private boolean salarySacrificeUseTotalAfterSacrificeDeducted;
     private double contributionThresholdLower;
     private double contributionThresholdUpper;
     private double employeeContributionPercentage;

@@ -8,7 +8,6 @@ import co.hrsquare.bindad.mapper.IAddressMapper;
 import co.hrsquare.bindad.mapper.ICompanyMapper;
 import co.hrsquare.bindad.mapper.IDepartmentMapper;
 import co.hrsquare.bindad.model.Address;
-import co.hrsquare.bindad.model.AddressType;
 import co.hrsquare.bindad.model.company.Company;
 import co.hrsquare.bindad.model.company.Department;
 import co.hrsquare.bindad.model.EmailTelephone;
@@ -19,9 +18,12 @@ import org.springframework.transaction.annotation.Transactional;
 import org.springframework.util.CollectionUtils;
 
 import java.time.LocalDateTime;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 import java.util.stream.Collectors;
+
+import static co.hrsquare.bindad.model.Address.fromAddressInput;
 
 @Component
 @Slf4j
@@ -29,13 +31,16 @@ public class CompanyService {
     private final ICompanyMapper companyMapper;
     private final IDepartmentMapper departmentMapper;
     private final DataStore dataStore;
+    private final IAddressMapper addressMapper;
 
     public CompanyService(ICompanyMapper companyMapper,
                           IDepartmentMapper departmentMapper,
-                          DataStore dataStore) {
+                          DataStore dataStore,
+                          IAddressMapper addressMapper) {
         this.companyMapper = companyMapper;
         this.departmentMapper = departmentMapper;
         this.dataStore = dataStore;
+        this.addressMapper = addressMapper;
     }
 
     @Transactional
@@ -86,7 +91,7 @@ public class CompanyService {
 
         //1. create skeleton (so without any details for supplementary tables
         //such as addresses, departments, etc) in order to generate id
-        co = Company.builder()
+        Company newCo = Company.builder()
                 .tradingName(input.getTradingName())
                 .fullName(input.getTradingName())
                 .registeredName(input.getRegisteredName())
@@ -106,16 +111,18 @@ public class CompanyService {
                 .updatedTime(LocalDateTime.now())
                 .build();
 
-        dataStore.save(ICompanyMapper.class, co);
+        dataStore.save(ICompanyMapper.class, newCo);
 
         //2. address
-        co.setPrimaryAddress(saveAddress(co, input.getPrimaryAddress()));
-        co.setAdditionalAddress1(saveAddress(co, input.getAdditionalAddress1()));
-        co.setAdditionalAddress2(saveAddress(co, input.getAdditionalAddress2()));
-        co.setAdditionalAddress3(saveAddress(co, input.getAdditionalAddress3()));
-        co.setAdditionalAddress4(saveAddress(co, input.getAdditionalAddress4()));
-        co.setAdditionalAddress5(saveAddress(co, input.getAdditionalAddress5()));
-        companyMapper.updateAddresses(co);
+        List<Long> addressIdsToDelete = collectAddresses(co);
+        addressMapper.deleteAll(addressIdsToDelete);
+        newCo.setPrimaryAddress(saveAddress(newCo, input.getPrimaryAddress()));
+        newCo.setAdditionalAddress1(saveAddress(newCo, input.getAdditionalAddress1()));
+        newCo.setAdditionalAddress2(saveAddress(newCo, input.getAdditionalAddress2()));
+        newCo.setAdditionalAddress3(saveAddress(newCo, input.getAdditionalAddress3()));
+        newCo.setAdditionalAddress4(saveAddress(newCo, input.getAdditionalAddress4()));
+        newCo.setAdditionalAddress5(saveAddress(newCo, input.getAdditionalAddress5()));
+        companyMapper.updateAddresses(newCo);
 
         //3. departments
         editDepartments(input.getDepartmentsInput());
@@ -123,38 +130,39 @@ public class CompanyService {
         return "SUCCESS";
     }
 
+    private List<Long> collectAddresses(Company co) {
+        List<Long> list = new ArrayList<>();
+
+        if (co.getPrimaryAddress() != null) {
+            list.add(co.getPrimaryAddress().getId());
+        }
+        if (co.getAdditionalAddress1() != null) {
+            list.add(co.getAdditionalAddress1().getId());
+        }
+        if (co.getAdditionalAddress2() != null) {
+            list.add(co.getAdditionalAddress2().getId());
+        }
+        if (co.getAdditionalAddress3() != null) {
+            list.add(co.getAdditionalAddress3().getId());
+        }
+        if (co.getAdditionalAddress4() != null) {
+            list.add(co.getAdditionalAddress4().getId());
+        }
+        if (co.getAdditionalAddress5() != null) {
+            list.add(co.getAdditionalAddress5().getId());
+        }
+
+        return list;
+    }
+
     private Address saveAddress(Company co, AddressInput addressInput) {
         if (addressInput == null) {
             return null;
         }
-        Address address = fromInput(addressInput, co);
+        Address address = fromAddressInput(addressInput, co);
         dataStore.save(IAddressMapper.class, address);
         return address;
     }
-
-    private Address fromInput(AddressInput addressInput, Company co) {
-        if (addressInput == null) {
-            return null;
-        }
-
-        return Address.builder()
-                .type(AddressType.COMPANY)
-                .addressShortCutName(addressInput.getAddressShortCutName())
-                .line1(addressInput.getLine1())
-                .line2(addressInput.getLine2())
-                .line3(addressInput.getLine3())
-                .town(addressInput.getTown())
-                .country(addressInput.getCountry())
-                .postCode(addressInput.getPostCode())
-                .client(co.getClient())
-                .company(co)
-                .employee(null)
-                .deleted(false)
-                .updatedBy(-1)
-                .updatedTime(LocalDateTime.now())
-                .build();
-    }
-
 
     @Transactional
     public String editDepartments(DepartmentsInput input) {

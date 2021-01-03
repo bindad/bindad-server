@@ -2,15 +2,22 @@ package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.CompanyPayrollInput;
 import co.hrsquare.bindad.mapper.*;
+import co.hrsquare.bindad.model.Address;
 import co.hrsquare.bindad.model.company.Company;
 import co.hrsquare.bindad.model.company.payroll.*;
 import lombok.extern.slf4j.Slf4j;
 import org.apache.tomcat.util.codec.binary.Base64;
 import org.springframework.stereotype.Component;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.nio.charset.StandardCharsets;
 import java.time.LocalDateTime;
+import java.util.Collections;
+import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
+
+import static co.hrsquare.bindad.model.Address.fromAddressInput;
 
 @Component
 @Slf4j
@@ -21,27 +28,98 @@ public class CompanyPayrollService {
     private final IEmployeeMapper employeeMapper;
     private final ICompanyPayrollMapper companyPayrollMapper;
     private final DataStore dataStore;
+    private final IPensionContributionTypeMapper pensionContributionTypeMapper;
+    private final IPensionTaxationTypeMapper pensionTaxationTypeMapper;
+    private final IPensionSchemeMapper pensionSchemeMapper;
+    private final IAddressMapper addressMapper;
 
     public CompanyPayrollService(ICompanyMapper companyMapper,
                                  IPayrollPaymentMethodMapper payrollPaymentMethodMapper,
                                  IRtiSenderTypeMapper rtiSenderTypeMapper,
                                  IEmployeeMapper employeeMapper,
                                  ICompanyPayrollMapper companyPayrollMapper,
-                                 DataStore dataStore) {
+                                 DataStore dataStore,
+                                 IPensionContributionTypeMapper pensionContributionTypeMapper,
+                                 IPensionTaxationTypeMapper pensionTaxationTypeMapper,
+                                 IPensionSchemeMapper pensionSchemeMapper,
+                                 IAddressMapper addressMapper) {
         this.companyMapper = companyMapper;
         this.payrollPaymentMethodMapper = payrollPaymentMethodMapper;
         this.rtiSenderTypeMapper = rtiSenderTypeMapper;
         this.employeeMapper = employeeMapper;
         this.companyPayrollMapper = companyPayrollMapper;
         this.dataStore = dataStore;
+        this.pensionContributionTypeMapper = pensionContributionTypeMapper;
+        this.pensionTaxationTypeMapper = pensionTaxationTypeMapper;
+        this.pensionSchemeMapper = pensionSchemeMapper;
+        this.addressMapper = addressMapper;
     }
 
+    @Transactional
     public String editPayroll(CompanyPayrollInput input) {
         Company co = companyMapper.findByFullName(input.getCompanyFullName());
         if (co == null) {
             return "Cannot find company";
         }
 
+        //payroll
+        CompanyPayroll companyPayroll = buildCompanyPayrollFromInput(input, co);
+        companyPayrollMapper.deleteByClientAndCompanyId(co.getClient().getId(), co.getId());
+        dataStore.save(ICompanyPayrollMapper.class, companyPayroll);
+
+        //pension schemes
+        List<Long> addressIdsToDelete = pensionSchemeMapper.findAllPensionAddressIds(co.getClient().getId(), co.getId());
+        addressMapper.deleteAll(addressIdsToDelete);
+        pensionSchemeMapper.deleteByClientAndCompanyId(co.getClient().getId(), co.getId());
+        List<PensionScheme> pensionSchemes = buildPensionSchemesFromInput(input, co);
+        pensionSchemes.forEach(ps -> {
+            dataStore.save(IPensionSchemeMapper.class, ps);
+
+            if (ps.getPensionAddress() != null) {
+                dataStore.save(IAddressMapper.class, ps.getPensionAddress());
+            }
+        });
+
+        //benefits
+
+        return "SUCCESS";
+    }
+
+    private List<PensionScheme> buildPensionSchemesFromInput(CompanyPayrollInput input, Company co) {
+        if (input.getPensionSchemes() == null || input.getPensionSchemes().getPensionSchemeInputs() == null) {
+            return Collections.emptyList();
+        }
+
+        return input.getPensionSchemes().getPensionSchemeInputs()
+                .stream()
+                .map(ps -> {
+                    Address pensionAddress = fromAddressInput(ps.getPensionAddress(), co);
+                    return PensionScheme.builder()
+                            .name(ps.getName())
+                            .provider(ps.getProvider())
+                            .schemeReference(ps.getSchemeReference())
+                            .contributionType(Optional.ofNullable(ps.getContributionType()).map(pensionContributionTypeMapper::findByName).orElse(null))
+                            .contributionThresholdLower(ps.getContributionThresholdLower())
+                            .contributionThresholdUpper(ps.getContributionThresholdUpper())
+                            .employeeContributionPercentage(ps.getEmployeeContributionPercentage())
+                            .employerContributionPercentage(ps.getEmployerContributionPercentage())
+                            .employerContributionPerEmployee(ps.isEmployerContributionPerEmployee())
+                            .pensionTaxationType(Optional.ofNullable(ps.getPensionTaxationType()).map(pensionTaxationTypeMapper::findByName).orElse(null))
+                            .autoEnrolmentCompatible(ps.isAutoEnrolmentCompatible())
+                            .autoEnrolmentDelayStartNever(ps.isAutoEnrolmentDelayStartNever())
+                            .autoEnrolmentDelayStartAlways(ps.isAutoEnrolmentDelayStartAlways())
+                            .autoEnrolmentDelayStartPerEmployee(ps.isAutoEnrolmentDelayStartPerEmployee())
+                            .pensionAddress(pensionAddress)
+                            .client(co.getClient())
+                            .company(co)
+                            .deleted(false)
+                            .updatedBy(-1)
+                            .updatedTime(LocalDateTime.now())
+                            .build();
+                }).collect(Collectors.toList());
+    }
+
+    private CompanyPayroll buildCompanyPayrollFromInput(CompanyPayrollInput input, Company co) {
         PayFrequency payFrequency = PayFrequency.valueOf(input.getPayFrequency());
         PayrollMonthly payrollMonthly = null;
         PayrollWeekly payrollWeekly = null;
@@ -113,8 +191,7 @@ public class CompanyPayrollService {
                 .payrollServiceEmail(input.getPayrollServiceEmail())
                 .build();
 
-
-        CompanyPayroll companyPayroll = CompanyPayroll.builder()
+        return CompanyPayroll.builder()
                 .payFrequency(payFrequency)
                 .payrollMonthly(payrollMonthly)
                 .payrollWeekly(payrollWeekly)
@@ -131,14 +208,5 @@ public class CompanyPayrollService {
                 .updatedBy(-1)
                 .updatedTime(LocalDateTime.now())
                 .build();
-
-
-        //delete
-        companyPayrollMapper.deleteByClientAndCompanyId(co.getClient().getId(), co.getId());
-
-        //and insert
-        dataStore.save(ICompanyPayrollMapper.class, companyPayroll);
-
-        return "SUCCESS";
     }
 }

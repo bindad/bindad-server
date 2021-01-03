@@ -2,12 +2,17 @@ package co.hrsquare.bindad.service;
 
 import co.hrsquare.bindad.controller.input.ClientFullSignUpInput;
 import co.hrsquare.bindad.controller.input.CompanyPayrollInput;
+import co.hrsquare.bindad.controller.input.PensionSchemeInput;
+import co.hrsquare.bindad.controller.input.PensionSchemesInput;
 import co.hrsquare.bindad.controller.output.ClientSummary;
+import co.hrsquare.bindad.model.company.payroll.PensionScheme;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.test.context.ActiveProfiles;
+
+import java.util.Collections;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -40,6 +45,11 @@ class CompanyPayrollServiceTest {
         ClientSummary liveClientSummary = clientOnboardingService.getClientSummary(liveClientId);
         System.out.println(liveClientSummary);
 
+        PensionSchemeInput pensionScheme = PensionSchemeInput.builder()
+                .name("Axa Pension Scheme")
+                .provider("Axa Financial Services")
+                .build();
+
         CompanyPayrollInput input = CompanyPayrollInput.builder()
                 .companyFullName("Med Tech Inc.")
                 .payFrequency("MONTHLY")
@@ -47,6 +57,9 @@ class CompanyPayrollServiceTest {
                 .customPeriodStartDate(5)
                 .useLastWorkingDay(true)
                 .paymentMethod("Cash")
+                .pensionSchemes(PensionSchemesInput.builder()
+                        .pensionSchemeInputs(Collections.singletonList(pensionScheme))
+                        .build())
                 .build();
 
         String res = companyPayrollService.editPayroll(input);
